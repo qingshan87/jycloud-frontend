@@ -1,5 +1,12 @@
 # OS specific files
 .DS_Store
+Thumbs.db
+Desktop.ini
+
+# IDE / editor
+.idea/
+.vscode/
+*.sw?
 
 # dependencies manager
 node_modules/
@@ -17,21 +24,45 @@ lib/
 dist/
 typings/
 
-_site
-package
-tmp*
-temp*
+# 环境变量：真实环境文件不入库，统一使用 .env.example 模板
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# 密钥 / 证书：本地误放也不允许入库
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+*.p8
+*.jks
+*.keystore
+
+# 日志
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# 测试 / 覆盖率
 coverage
 test-report.html
-.idea/
-yarn-error.log
-*.zip
+_site
+package
+
+# 临时文件
+tmp*
+temp*
 .history
 .stylelintcache
+.eslintcache
+*.zip
 
-.env.local
-.env.*.local
-
-# lock文件 请根据自身项目或团队需求选择具体的包管理工具 并移除具体的ignore的lock文件
+# 锁文件：应用项目建议提交 package-lock.json（npm）；
+# 若切换包管理器，按需取消忽略 yarn.lock / pnpm-lock.yaml
 yarn.lock
 pnpm-lock.yaml

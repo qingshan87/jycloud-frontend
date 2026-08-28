@@ -66,6 +66,8 @@ npm run stylelint    # Stylelint 检查
 | `VITE_CLIENT_ID` | 默认应用 clientId（初始登录与兜底） | `1111`（开发）/ `jy-setting`（生产） |
 | `VITE_APP_TITLE` | 全局标题 | JYCloud 基础框架 |
 
+> 真实环境变量文件（`.env*`）不入库，模板见 [.env.example](.env.example)，复制后按环境填写。
+
 > 生产部署时，Nginx 需将 `/api/` 前缀剥离后转发到网关，例如 `location /api/ { proxy_pass http://gateway:9000/; }`。
 
 ## 动态菜单约定
