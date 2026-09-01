@@ -75,7 +75,7 @@ npm run stylelint    # Stylelint 检查
 后端菜单（`MenuVO`）字段：
 
 - `path`：路由路径（如 `/setting/tenant`）。
-- `component`：页面组件，对应 `src/pages` 下文件（如 `system/tenant/index`，兼容省略 `/index`）。
+- `component`：页面组件，对应 `src/pages` 下文件（如 `setting/tenant/index`，兼容省略 `/index`）。
 - `category`：0 菜单 / 1 按钮（按钮不生成路由，仅作为权限标识）。
 - `perms`：权限标识，如 `jy-setting:user:create`。
 - `hide`：1 隐藏（保留路由但侧边栏不展示）。
@@ -95,12 +95,12 @@ npm run stylelint    # Stylelint 检查
 
 | 模块 | 页面 | 功能 |
 | --- | --- | --- |
-| 用户管理 | `src/pages/system/user/index.vue` | 全平台用户查询、新增、编辑、重置密码、删除 |
-| 租户管理 | `src/pages/system/tenant/index.vue` | 租户增删改查；详情抽屉内提供该租户的「用户管理」「应用管理」 |
-| 角色管理 | `src/pages/system/role/index.vue` | 按租户维护管理员角色（tenant_admin / client_admin）并授权菜单 |
-| 菜单管理 | `src/pages/system/menu/index.vue` | 按应用维护菜单树（菜单/按钮），组件路径对应 `src/pages` |
-| 应用管理 | `src/pages/system/client/index.vue` | 业务系统增删改查、重置密钥 |
-| 字典管理 | `src/pages/system/dict/index.vue` | 维护字典类型与字典项，供各业务系统复用 |
+| 用户管理 | `src/pages/setting/user/index.vue` | 全平台用户查询、新增、编辑、重置密码、删除 |
+| 租户管理 | `src/pages/setting/tenant/index.vue` | 租户增删改查；详情抽屉内提供该租户的「用户管理」「应用管理」 |
+| 角色管理 | `src/pages/setting/role/index.vue` | 按租户维护管理员角色（tenant_admin / client_admin）并授权菜单 |
+| 菜单管理 | `src/pages/setting/menu/index.vue` | 按应用维护菜单树（菜单/按钮），组件路径对应 `src/pages` |
+| 应用管理 | `src/pages/setting/client/index.vue` | 业务系统增删改查、重置密钥 |
+| 字典管理 | `src/pages/setting/dict/index.vue` | 维护字典类型与字典项，供各业务系统复用 |
 
 页面访问依赖后端 `t_menu` 中配置的菜单（`client_id = 1111`）。初始化菜单可直接执行 [docs/setting-menu.sql](docs/setting-menu.sql)，接口约定见 [docs/setting-api.md](docs/setting-api.md)。
 

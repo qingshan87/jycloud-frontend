@@ -114,7 +114,7 @@
             <t-input v-model="form.path" placeholder="如 /setting/user 或 user" clearable />
           </t-form-item>
           <t-form-item label="组件路径" name="component">
-            <t-input v-model="form.component" placeholder="如 system/user/index" clearable />
+            <t-input v-model="form.component" placeholder="如 setting/user/index" clearable />
           </t-form-item>
           <t-form-item label="图标" name="icon">
             <t-popup v-model:visible="iconPickerVisible" trigger="click" placement="bottom-start" expand-animation>
