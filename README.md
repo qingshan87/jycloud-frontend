@@ -64,7 +64,7 @@ npm run stylelint    # Stylelint 检查
 | `VITE_API_URL_PREFIX` | 接口前缀 | `/api` |
 | `VITE_GATEWAY` | 本地开发代理网关地址 | `http://localhost:9000` |
 | `VITE_CLIENT_ID` | 默认应用 clientId（初始登录与兜底） | `1111`（开发）/ `jy-setting`（生产） |
-| `VITE_APP_TITLE` | 全局标题 | JYCloud 基础框架 |
+| `VITE_APP_TITLE` | 全局标题 | JYCloud 前端控制台 |
 
 > 真实环境变量文件（`.env*`）不入库，模板见 [.env.example](.env.example)，复制后按环境填写。
 
