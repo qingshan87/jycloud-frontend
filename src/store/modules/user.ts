@@ -76,12 +76,15 @@ export const useUserStore = defineStore('user', {
         const list = (await getMyApps()) || [];
         this.clients = list;
         // 当前应用不在列表中时，回退到默认应用或第一个应用
+
         if (!this.currentApp || !list.some((item) => item.clientId === this.currentApp?.clientId)) {
           const fallback = list.find((item) => item.clientId === CLIENT_ID) || list[0] || null;
           this.currentApp = fallback;
         }
-      } catch {
-        // 接口未就绪时忽略，顶部切换器不展示
+      } catch (e: any) {
+        // 接口未就绪时忽略，顶部切换器不展示；控制台提示便于排查
+
+        console.warn('[user] 加载我的应用列表失败', e?.message || e);
         this.clients = [];
       }
     },
@@ -103,6 +106,11 @@ export const useUserStore = defineStore('user', {
     },
 
     async getUserInfo() {
+      // 页面刷新或恢复登录态时，应用列表为空则补拉一次（登录/切租户已拉取）
+
+      if (this.token && this.clients.length === 0) {
+        await this.loadMyApps();
+      }
       return this.userInfo;
     },
     /** 退出登录（jy-user） */
