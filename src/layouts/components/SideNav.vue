@@ -12,7 +12,7 @@
       <template #logo>
         <span v-if="showLogo" :class="`${prefix}-side-nav-logo-wrapper`" @click="goHome">
           <component :is="getLogo()" :class="logoCls" />
-<!--          <span class="side-nav-logo-text" :class="logoTextCls">设置平台</span>-->
+          <!--          <span class="side-nav-logo-text" :class="logoTextCls">设置平台</span> -->
         </span>
       </template>
       <menu-content :nav-data="menu" />
@@ -107,14 +107,6 @@ const sideNavCls = computed(() => {
     },
   ];
 });
-const logoTextCls = computed(() => {
-  return [
-    'side-nav-logo-text',
-    {
-      [`${prefix}-side-nav-dark`]: sideMode.value,
-    },
-  ];
-});
 const logoCls = computed(() => {
   return [
     `${prefix}-side-nav-logo-${collapsed.value ? 't' : 'tdesign'}-logo`,
@@ -163,14 +155,13 @@ onMounted(() => {
 });
 
 const goHome = () => {
-  router.push('/dashboard/base');
+  router.push('/');
 };
 
 const getLogo = () => {
   if (collapsed.value) return AssetLogo;
   return AssetLogoFull;
 };
-
 </script>
 <style lang="less" scoped>
 .side-nav-logo-text {

@@ -7,6 +7,7 @@ JYCloud 统一前端控制台：一套前端承载平台全部系统（用户中
 ## 已实现功能
 
 - 认证：账号密码登录、退出、切换租户（对接 jy-user 认证中心）。
+- 用户中心：我的应用、个人资料、账号安全页面（对接 jy-ucenter 服务），作为登录后的默认系统。
 - 动态菜单与路由：登录后调用 `/jy-user/system/user/router/menu` 获取当前用户菜单树，动态生成路由与侧边栏。
 - 按钮级权限控制：`PERM` 权限标识常量 + `hasPerm` 判断 + 全局 `v-permission` 指令，权限标识来自登录响应与菜单树合并。
 - 设置平台管理模块：用户、租户（含租户用户/应用）、角色、菜单、应用、字典的完整管理页面。
@@ -63,7 +64,7 @@ npm run stylelint    # Stylelint 检查
 | `VITE_API_URL` | 直连后端地址（走代理时留空） | 空 |
 | `VITE_API_URL_PREFIX` | 接口前缀 | `/api` |
 | `VITE_GATEWAY` | 本地开发代理网关地址 | `http://localhost:9000` |
-| `VITE_CLIENT_ID` | 默认应用 clientId（初始登录与兜底） | `1111`（开发）/ `jy-setting`（生产） |
+| `VITE_CLIENT_ID` | 默认应用 clientId（初始登录与兜底，默认进入用户中心） | `jy-ucenter` |
 | `VITE_APP_TITLE` | 全局标题 | JYCloud 前端控制台 |
 
 > 真实环境变量文件（`.env*`）不入库，模板见 [.env.example](.env.example)，复制后按环境填写。

@@ -186,7 +186,7 @@ import { computed, onMounted, reactive, ref, watch } from 'vue';
 import type { MenuForm, SettingClient, SettingMenu } from '@/api/model/settingModel';
 import { pageClients } from '@/api/setting/client';
 import { createMenu, deleteMenu, treeMenus, updateMenu } from '@/api/setting/menu';
-import { CLIENT_ID } from '@/constants';
+import { SETTING_CLIENT_ID } from '@/constants';
 import { PERM } from '@/constants/permission';
 
 defineOptions({ name: 'SettingMenu' });
@@ -194,7 +194,7 @@ defineOptions({ name: 'SettingMenu' });
 const clientLoading = ref(false);
 const clientOptions = ref<Array<{ label: string; value: string }>>([]);
 // 默认选中当前应用（设置平台自身），进入页面即展示其菜单
-const selectedClientId = ref(CLIENT_ID);
+const selectedClientId = ref(SETTING_CLIENT_ID);
 
 /** 当前选中应用的展示名称 */
 const currentAppName = computed(() => {

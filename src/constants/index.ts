@@ -37,7 +37,10 @@ export enum ContentTypeEnum {
 }
 
 // 当前应用客户端 ID，派生业务系统通过 VITE_CLIENT_ID 覆盖
-export const CLIENT_ID: string = import.meta.env.VITE_CLIENT_ID || 'jy-setting';
+export const CLIENT_ID: string = import.meta.env.VITE_CLIENT_ID || 'jy-ucenter';
+
+// 用户中心 clientId（默认系统，登录后默认进入）
+export const USER_CENTER_CLIENT_ID = 'jy-ucenter';
 
 // 设置平台 clientId（与后端 UcConstant.SETTING_CLIENT_ID 一致）
 export const SETTING_CLIENT_ID = '1111';
