@@ -40,8 +40,8 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
 
-import type { MyClient } from '@/api/model/permissionModel';
-import { getMyClients } from '@/api/permission';
+import type { MyApp } from '@/api/model/permissionModel';
+import { getMyApps } from '@/api/permission';
 import { useUserStore } from '@/store';
 
 defineOptions({ name: 'UserCenterHome' });
@@ -49,7 +49,7 @@ defineOptions({ name: 'UserCenterHome' });
 const userStore = useUserStore();
 
 const loading = ref(false);
-const apps = ref<MyClient[]>([]);
+const apps = ref<MyApp[]>([]);
 
 const displayName = computed(() => userStore.userInfo.name || '用户');
 const greetingAvatar = computed(() => displayName.value.slice(0, 1).toUpperCase());
@@ -57,7 +57,7 @@ const greetingAvatar = computed(() => displayName.value.slice(0, 1).toUpperCase(
 const fetchApps = async () => {
   loading.value = true;
   try {
-    apps.value = (await getMyClients()) || [];
+    apps.value = (await getMyApps()) || [];
   } catch {
     // 接口未就绪时保持空态，便于后续接入
     apps.value = [];
@@ -66,7 +66,7 @@ const fetchApps = async () => {
   }
 };
 
-const enterApp = async (app: MyClient) => {
+const enterApp = async (app: MyApp) => {
   // 外部系统：新窗口打开（授权码跳转后续接入）
   if (app.category === 2 && app.website) {
     window.open(app.website, '_blank');

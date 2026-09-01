@@ -41,8 +41,8 @@ export interface RouteItem {
   children?: Array<RouteItem>;
 }
 
-/** 当前用户可用应用（jy-user 公共接口 system/user/client/my） */
-export interface MyClient {
+/** 当前用户可用应用（jy-user 公共接口 system/user/apps） */
+export interface MyApp {
   clientId: string;
   appName: string;
   icon?: string;

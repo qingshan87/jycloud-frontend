@@ -2,8 +2,8 @@ import { defineStore } from 'pinia';
 import type { RouteRecordRaw } from 'vue-router';
 
 import { login as loginApi, logout as logoutApi, switchTenant as switchTenantApi } from '@/api/auth';
-import type { MyClient } from '@/api/model/permissionModel';
-import { getMyClients } from '@/api/permission';
+import type { MyApp } from '@/api/model/permissionModel';
+import { getMyApps } from '@/api/permission';
 import { CLIENT_ID } from '@/constants';
 import router from '@/router';
 import { usePermissionStore } from '@/store';
@@ -22,8 +22,8 @@ export const useUserStore = defineStore('user', {
     tenantId: '',
     tenant: null as UserTenant | null, // 当前租户信息
     tenants: [] as UserTenant[],
-    clients: [] as MyClient[], // 当前用户可用应用列表（jy-user 公共接口，按用户权限过滤）
-    currentApp: null as MyClient | null, // 当前应用
+    clients: [] as MyApp[], // 当前用户可用应用列表（jy-user 公共接口，按用户权限过滤）
+    currentApp: null as MyApp | null, // 当前应用
   }),
   getters: {
     roles: (state) => {
@@ -46,7 +46,7 @@ export const useUserStore = defineStore('user', {
       this.tenantId = data.tenantId || '';
       this.tenant = data.tenantDto || null;
       this.tenants = Array.isArray(data.tenantDtos) ? data.tenantDtos : [];
-      await this.loadMyClients();
+      await this.loadMyApps();
     },
     /** 切换租户（jy-user switch_tenant）：换发新 token，并重建当前租户的动态菜单 */
     async switchTenant(tenantId: string) {
@@ -62,7 +62,7 @@ export const useUserStore = defineStore('user', {
       this.tenantId = data.tenantId || '';
       this.tenant = data.tenantDto || null;
       this.tenants = Array.isArray(data.tenantDtos) ? data.tenantDtos : [];
-      await this.loadMyClients();
+      await this.loadMyApps();
 
       // 移除旧租户的动态路由，跳转首页触发路由守卫按新租户重建菜单
       const permissionStore = usePermissionStore();
@@ -70,10 +70,10 @@ export const useUserStore = defineStore('user', {
       await router.push('/');
     },
     /** 获取用户信息：登录接口已返回，直接复用本地缓存 */
-    /** 获取当前用户可用应用列表（jy-user 公共接口，按用户权限过滤） */
-    async loadMyClients() {
+    /** 获取当前用户可用应用列表（jy-user 公共接口 system/user/apps，按用户权限过滤） */
+    async loadMyApps() {
       try {
-        const list = (await getMyClients()) || [];
+        const list = (await getMyApps()) || [];
         this.clients = list;
         // 当前应用不在列表中时，回退到默认应用或第一个应用
         if (!this.currentApp || !list.some((item) => item.clientId === this.currentApp?.clientId)) {
