@@ -1,4 +1,4 @@
-import type { MyApp, PasswordForm, ProfileForm, UcenterProfile } from '@/api/model/ucenterModel';
+import type { PasswordForm, ProfileForm, UcenterProfile } from '@/api/model/ucenterModel';
 import { request } from '@/utils/request';
 
 /**
@@ -10,7 +10,6 @@ const Api = {
   Profile: '/jy-ucenter/system/profile',
   UpdateProfile: '/jy-ucenter/system/profile/update',
   UpdatePassword: '/jy-ucenter/system/password/update',
-  MyApps: '/jy-ucenter/system/client/my',
 };
 
 /** 获取当前用户资料 */
@@ -33,12 +32,5 @@ export function updatePassword(data: PasswordForm) {
   return request.post({
     url: Api.UpdatePassword,
     data,
-  });
-}
-
-/** 获取当前租户下我的可用应用 */
-export function getMyApps() {
-  return request.get<MyApp[]>({
-    url: Api.MyApps,
   });
 }

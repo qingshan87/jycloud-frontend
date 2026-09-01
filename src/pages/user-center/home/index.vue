@@ -38,11 +38,10 @@
   </div>
 </template>
 <script setup lang="ts">
-import { MessagePlugin } from 'tdesign-vue-next';
 import { computed, onMounted, ref } from 'vue';
 
-import type { MyApp } from '@/api/model/ucenterModel';
-import { getMyApps } from '@/api/ucenter';
+import type { MyClient } from '@/api/model/permissionModel';
+import { getMyClients } from '@/api/permission';
 import { useUserStore } from '@/store';
 
 defineOptions({ name: 'UserCenterHome' });
@@ -50,7 +49,7 @@ defineOptions({ name: 'UserCenterHome' });
 const userStore = useUserStore();
 
 const loading = ref(false);
-const apps = ref<MyApp[]>([]);
+const apps = ref<MyClient[]>([]);
 
 const displayName = computed(() => userStore.userInfo.name || '用户');
 const greetingAvatar = computed(() => displayName.value.slice(0, 1).toUpperCase());
@@ -58,7 +57,7 @@ const greetingAvatar = computed(() => displayName.value.slice(0, 1).toUpperCase(
 const fetchApps = async () => {
   loading.value = true;
   try {
-    apps.value = (await getMyApps()) || [];
+    apps.value = (await getMyClients()) || [];
   } catch {
     // 接口未就绪时保持空态，便于后续接入
     apps.value = [];
@@ -67,12 +66,14 @@ const fetchApps = async () => {
   }
 };
 
-const enterApp = (app: MyApp) => {
-  if (app.website) {
+const enterApp = async (app: MyClient) => {
+  // 外部系统：新窗口打开（授权码跳转后续接入）
+  if (app.category === 2 && app.website) {
     window.open(app.website, '_blank');
     return;
   }
-  MessagePlugin.info(`「${app.appName || app.clientId}」应用入口接入中`);
+  // 内部/业务系统：控制台内切换应用
+  await userStore.switchApp(app.clientId);
 };
 
 onMounted(fetchApps);

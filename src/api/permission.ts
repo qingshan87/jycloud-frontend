@@ -1,8 +1,9 @@
-import type { MenuListResult, MenuVO, RouteItem } from '@/api/model/permissionModel';
+import type { MenuListResult, MenuVO, MyClient, RouteItem } from '@/api/model/permissionModel';
 import { request } from '@/utils/request';
 
 const Api = {
   MenuList: '/jy-user/system/user/router/menu',
+  MyClients: '/jy-user/system/user/client/my',
 };
 
 /** 递归提取菜单树中的按钮权限标识（category=1 的 perms） */
@@ -61,4 +62,11 @@ export function getMenuList() {
     .then((list) => {
       return { list: transformMenu(list), perms: collectMenuPerms(list) } as MenuListResult;
     });
+}
+
+/** 获取当前用户可用应用列表（jy-user 公共接口，按用户权限过滤） */
+export function getMyClients() {
+  return request.get<MyClient[]>({
+    url: Api.MyClients,
+  });
 }

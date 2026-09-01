@@ -48,6 +48,37 @@
           <!--            > -->
           <!--          </t-dropdown> -->
           <!-- 租户名称 + 切换租户 -->
+          <!-- 应用切换（jy-user 我的应用，按用户权限过滤） -->
+          <t-dropdown
+            v-if="user.clients.length > 0"
+            class="header-app-dropdown"
+            :min-column-width="160"
+            trigger="click"
+            @click="handleSwitchApp"
+          >
+            <template #dropdown>
+              <t-dropdown-item
+                v-for="app in user.clients"
+                :key="app.clientId"
+                :value="app.clientId"
+                :disabled="app.clientId === user.currentApp?.clientId"
+              >
+                <div class="app-switch-item">
+                  <span class="app-switch-name">{{ app.appName || app.clientId }}</span>
+                  <t-icon v-if="app.clientId === user.currentApp?.clientId" name="check" />
+                </div>
+              </t-dropdown-item>
+            </template>
+            <t-button class="header-app-btn" theme="default" variant="text">
+              <template #icon>
+                <t-icon name="app" />
+              </template>
+              <span class="header-app-name">{{
+                user.currentApp?.appName || user.currentApp?.clientId || '选择应用'
+              }}</span>
+              <template #suffix><chevron-down-icon /></template>
+            </t-button>
+          </t-dropdown>
           <t-dropdown
             v-if="user.tenants.length > 1"
             class="header-tenant-dropdown"
@@ -200,6 +231,17 @@ const handleSwitchTenant = async (dropdownItem: string | number | Record<string,
     MessagePlugin.success('租户切换成功');
   } catch (error: any) {
     MessagePlugin.error(error?.message || '租户切换失败');
+  }
+};
+
+const handleSwitchApp = async (dropdownItem: string | number | Record<string, any>) => {
+  const clientId = String(typeof dropdownItem === 'object' ? (dropdownItem.value ?? '') : dropdownItem);
+  if (!clientId || clientId === user.currentApp?.clientId) return;
+  try {
+    await user.switchApp(clientId);
+    MessagePlugin.success('应用切换成功');
+  } catch (error: any) {
+    MessagePlugin.error(error?.message || '应用切换失败');
   }
 };
 </script>

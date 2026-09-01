@@ -117,7 +117,7 @@ const transform: AxiosTransform = {
     const { token } = userStore;
 
     // 固定携带应用 ID
-    (config as Recordable).headers[HEADER_CLIENT_ID] = CLIENT_ID;
+    (config as Recordable).headers[HEADER_CLIENT_ID] = userStore.currentApp?.clientId || CLIENT_ID;
 
     if (token && (config as Recordable)?.requestOptions?.withToken !== false) {
       // jwt token

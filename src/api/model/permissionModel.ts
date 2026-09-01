@@ -40,3 +40,15 @@ export interface RouteItem {
   meta: RouteMeta;
   children?: Array<RouteItem>;
 }
+
+/** 当前用户可用应用（jy-user 公共接口 system/user/client/my） */
+export interface MyClient {
+  clientId: string;
+  appName: string;
+  icon?: string;
+  /** 0 内部系统 1 业务系统 2 外部系统 */
+  category?: number;
+  description?: string;
+  website?: string;
+  status?: number;
+}

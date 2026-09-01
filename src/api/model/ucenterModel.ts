@@ -34,15 +34,3 @@ export interface PasswordForm {
   oldPassword: string;
   newPassword: string;
 }
-
-/** 我的应用（当前租户可用应用） */
-export interface MyApp {
-  clientId: string;
-  appName: string;
-  icon?: string;
-  /** 0 内部系统 1 业务系统 2 外部系统 */
-  category?: number;
-  description?: string;
-  website?: string;
-  status?: number;
-}
