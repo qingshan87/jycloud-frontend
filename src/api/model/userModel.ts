@@ -16,3 +16,25 @@ export interface PasswordDTO {
   oldPassword: string;
   newPassword: string;
 }
+
+/** 用户视图（jy-user 公共 user/{userId}） */
+export interface UserVO {
+  userId: number;
+  username?: string;
+  realname?: string;
+  nickname?: string;
+  avatar?: string;
+  email?: string;
+  mobile?: string;
+  idCardNo?: string;
+  ssex?: number;
+  birthday?: string;
+  description?: string;
+  deptId?: number;
+  lastLoginIp?: string;
+  status?: number;
+  userTenantStatus?: number;
+  createTime?: string;
+  updateTime?: string;
+  roles?: Array<{ roleId: number; roleName: string }>;
+}

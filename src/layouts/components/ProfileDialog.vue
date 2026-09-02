@@ -11,6 +11,9 @@
       <t-form-item label="用户名" name="username">
         <t-input :value="form.username" disabled />
       </t-form-item>
+      <t-form-item label="昵称" name="nickname">
+        <t-input :value="nickname" disabled />
+      </t-form-item>
       <t-form-item label="真实姓名" name="realname">
         <t-input v-model="form.realname" placeholder="请输入真实姓名" clearable />
       </t-form-item>
@@ -41,7 +44,7 @@ import type { FormInstanceFunctions, FormRule } from 'tdesign-vue-next';
 import { MessagePlugin } from 'tdesign-vue-next';
 import { reactive, ref, watch } from 'vue';
 
-import { updateProfile } from '@/api/account';
+import { getUserProfile, updateProfile } from '@/api/account';
 import type { UserProfileDTO } from '@/api/model/userModel';
 import { useUserStore } from '@/store';
 
@@ -53,6 +56,7 @@ const userStore = useUserStore();
 
 const formRef = ref<FormInstanceFunctions>();
 const submitting = ref(false);
+const nickname = ref('');
 const form = reactive<UserProfileDTO & { username?: string }>({
   username: '',
   realname: '',
@@ -68,20 +72,42 @@ const rules: Record<string, FormRule[]> = {
   email: [{ email: true, message: '邮箱格式不正确', type: 'error' }],
 };
 
+const loadProfile = async () => {
+  Object.assign(form, {
+    username: userStore.userInfo.username || userStore.userInfo.name,
+    realname: userStore.userInfo.realname || '',
+    avatar: userStore.userInfo.avatar || '',
+    mobile: userStore.userInfo.mobile || '',
+    email: userStore.userInfo.email || '',
+    ssex: 0,
+    description: '',
+  });
+  nickname.value = userStore.userInfo.nickname || '';
+  const userId = userStore.userInfo.userId;
+  if (!userId) return;
+  try {
+    const data = await getUserProfile(userId);
+    if (data) {
+      Object.assign(form, {
+        username: data.username || form.username,
+        realname: data.realname || '',
+        avatar: data.avatar || '',
+        mobile: data.mobile || '',
+        email: data.email || '',
+        ssex: data.ssex ?? 0,
+        description: data.description || '',
+      });
+      nickname.value = data.nickname || '';
+    }
+  } catch {
+    // 回显失败时保留登录态数据
+  }
+};
+
 watch(
   () => visible.value,
   (val) => {
-    if (val) {
-      Object.assign(form, {
-        username: userStore.userInfo.username || userStore.userInfo.name,
-        realname: userStore.userInfo.realname || '',
-        avatar: userStore.userInfo.avatar || '',
-        mobile: userStore.userInfo.mobile || '',
-        email: userStore.userInfo.email || '',
-        ssex: 0,
-        description: '',
-      });
-    }
+    if (val) loadProfile();
   },
 );
 
