@@ -5,7 +5,6 @@ import { request } from '@/utils/request';
 const Api = {
   UpdateProfile: '/jy-user/system/user/profile/update',
   UpdatePassword: '/jy-user/system/user/password/update',
-  Detail: (userId: number) => `/jy-user/system/user/${userId}`,
 };
 
 /** 保存当前用户资料 */
@@ -24,9 +23,9 @@ export function updatePassword(data: PasswordDTO) {
   });
 }
 
-/** 获取当前用户完整资料（个人中心回显） */
-export function getUserProfile(userId: number) {
+/** 获取当前用户完整资料（个人中心回显；不传 userId 时查询当前登录用户） */
+export function getUserProfile(userId?: number) {
   return request.get<UserVO>({
-    url: Api.Detail(userId),
+    url: userId ? `/jy-user/system/user/${userId}` : '/jy-user/system/user',
   });
 }

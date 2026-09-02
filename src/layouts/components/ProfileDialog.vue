@@ -83,10 +83,8 @@ const loadProfile = async () => {
     description: '',
   });
   nickname.value = userStore.userInfo.nickname || '';
-  const userId = userStore.userInfo.userId;
-  if (!userId) return;
   try {
-    const data = await getUserProfile(userId);
+    const data = await getUserProfile();
     if (data) {
       Object.assign(form, {
         username: data.username || form.username,
