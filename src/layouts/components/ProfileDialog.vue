@@ -50,7 +50,7 @@ import { useUserStore } from '@/store';
 
 defineOptions({ name: 'ProfileDialog' });
 
-const visible = defineModel<boolean>({ default: false });
+const visible = defineModel<boolean>('visible', { default: false });
 
 const userStore = useUserStore();
 

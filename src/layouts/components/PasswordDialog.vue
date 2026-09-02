@@ -29,7 +29,7 @@ import { updatePassword } from '@/api/account';
 
 defineOptions({ name: 'PasswordDialog' });
 
-const visible = defineModel<boolean>({ default: false });
+const visible = defineModel<boolean>('visible', { default: false });
 
 const formRef = ref<FormInstanceFunctions>();
 const submitting = ref(false);
