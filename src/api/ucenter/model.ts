@@ -128,3 +128,21 @@ export interface UserAuthorityForm {
   userId: number;
   dataIds: number[];
 }
+
+/** 租户绑定应用及其菜单树（jy-ucenter menu/tree 按应用分组返回） */
+export interface TenantClientMenuVO {
+  id?: number;
+  tenantId?: string;
+  clientId: string;
+  /** 租户-应用绑定状态：0 禁用 1 启用 */
+  status?: number;
+  appName?: string;
+  /** 0 内部系统 1 业务系统 2 外部系统 */
+  category?: number;
+  icon?: string;
+  description?: string;
+  website?: string;
+  /** 应用自身状态 */
+  clientStatus?: number;
+  menuList?: UcenterMenuVO[];
+}

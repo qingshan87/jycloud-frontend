@@ -1,6 +1,6 @@
 import { request } from '@/utils/request';
 
-import type { UcenterMenuVO, UserAuthorityForm } from './model';
+import type { TenantClientMenuVO, UserAuthorityForm } from './model';
 
 /** 用户中心（jy-ucenter）：用户授权 / 菜单树 */
 const Api = {
@@ -33,5 +33,5 @@ export function listUserMenus(userId: number) {
 
 /** 当前租户菜单树（角色授权使用） */
 export function treeUcenterMenus() {
-  return request.get<UcenterMenuVO[]>({ url: Api.MenuTree });
+  return request.get<TenantClientMenuVO[]>({ url: Api.MenuTree });
 }

@@ -59,7 +59,7 @@
       :header="isEdit ? '编辑角色' : '新增角色'"
       :confirm-btn="{ content: '保存', loading: submitting }"
       cancel-btn="取消"
-      width="640px"
+      width="720px"
       @confirm="handleSubmit"
     >
       <t-form ref="formRef" :data="form" :rules="rules" label-width="90px" @submit.prevent>
@@ -80,22 +80,40 @@
         </t-form-item>
         <t-form-item label="菜单权限" name="menuIds">
           <div class="uc-role-menu">
-            <t-tree
-              :data="menuTree"
-              :keys="treeKeys"
-              :value="form.menuIds || []"
-              value-mode="all"
-              :loading="menuLoading"
-              checkable
-              check-strictly
-              expand-all
-              hover
-              @change="onMenuCheck"
-            >
-              <template #label="{ node }">
-                <span>{{ node.data.menuTitle || node.data.label || node.label }}</span>
-              </template>
-            </t-tree>
+            <t-empty v-if="menuGroups.length === 0" description="当前租户暂无绑定应用" />
+            <div v-for="group in menuGroups" :key="group.clientId" class="uc-role-app-group">
+              <div class="uc-role-app-title">
+                <t-icon :name="group.icon || 'app'" />
+                <span>{{ group.appName || group.clientId }}</span>
+              </div>
+              <t-tree
+                v-if="group.menuList && group.menuList.length"
+                :data="group.menuList"
+                :keys="treeKeys"
+                :value="checkedMap[group.clientId] || []"
+                value-mode="all"
+                :loading="menuLoading"
+                checkable
+                check-strictly
+                expand-all
+                hover
+                @change="(val: Array<string | number>) => onGroupMenuChange(group, val)"
+              >
+                <template #label="{ node }">
+                  <span>{{ node.data.menuTitle || node.data.label || node.label }}</span>
+                  <t-tag
+                    v-if="node.data.category === 1"
+                    size="small"
+                    variant="light"
+                    theme="warning"
+                    style="margin-left: 4px"
+                  >
+                    按钮
+                  </t-tag>
+                </template>
+              </t-tree>
+              <t-empty v-else description="该应用暂无菜单" />
+            </div>
           </div>
         </t-form-item>
       </t-form>
@@ -108,7 +126,13 @@ import { DialogPlugin, MessagePlugin } from 'tdesign-vue-next';
 import { onMounted, reactive, ref } from 'vue';
 
 import { treeUcenterMenus } from '@/api/ucenter/authority';
-import type { UcenterMenuVO, UcenterRoleForm, UcenterRoleQuery, UcenterRoleVO } from '@/api/ucenter/model';
+import type {
+  TenantClientMenuVO,
+  UcenterMenuVO,
+  UcenterRoleForm,
+  UcenterRoleQuery,
+  UcenterRoleVO,
+} from '@/api/ucenter/model';
 import {
   createUcenterRole,
   deleteUcenterRole,
@@ -185,24 +209,36 @@ const rules: Record<string, FormRule[]> = {
   roleName: [{ required: true, message: '请输入角色名称', type: 'error' }],
 };
 
+// 按应用分组的菜单树
 const menuLoading = ref(false);
-const menuTree = ref<UcenterMenuVO[]>([]);
+const menuGroups = ref<TenantClientMenuVO[]>([]);
+/** 每个应用下已勾选的菜单 ID，key 为 clientId */
+const checkedMap = ref<Record<string, number[]>>({});
 const treeKeys = { value: 'menuId', label: 'menuTitle', children: 'children' };
 
 const loadMenuTree = async () => {
   menuLoading.value = true;
   try {
-    menuTree.value = (await treeUcenterMenus()) || [];
+    menuGroups.value = (await treeUcenterMenus()) || [];
   } catch (e: any) {
     MessagePlugin.error(e?.message || '加载菜单失败');
-    menuTree.value = [];
+    menuGroups.value = [];
   } finally {
     menuLoading.value = false;
   }
 };
 
-const onMenuCheck = (value: Array<string | number>) => {
-  form.menuIds = value.map(Number);
+const collectMenuIds = (menus: UcenterMenuVO[] | undefined): number[] => {
+  const ids: number[] = [];
+  (menus || []).forEach((item) => {
+    ids.push(item.menuId);
+    ids.push(...collectMenuIds(item.children));
+  });
+  return ids;
+};
+
+const onGroupMenuChange = (group: TenantClientMenuVO, value: Array<string | number>) => {
+  checkedMap.value[group.clientId] = value.map(Number);
 };
 
 const openCreate = async () => {
@@ -215,6 +251,7 @@ const openCreate = async () => {
     status: 1,
     menuIds: [],
   });
+  checkedMap.value = {};
   dialogVisible.value = true;
   await loadMenuTree();
 };
@@ -227,15 +264,20 @@ const openEdit = async (row: UcenterRoleVO) => {
     remark: row.remark,
     sort: row.sort ?? 0,
     status: row.status ?? 1,
-    menuIds: Array.isArray(row.menuIds) ? row.menuIds : [],
+    menuIds: [],
   });
+  checkedMap.value = {};
   dialogVisible.value = true;
   await loadMenuTree();
   try {
     const detail = await getUcenterRole(row.roleId);
-    form.menuIds = Array.isArray(detail.menuIds) ? detail.menuIds : [];
+    const ids = Array.isArray(detail.menuIds) ? detail.menuIds : [];
+    menuGroups.value.forEach((group) => {
+      const groupIds = collectMenuIds(group.menuList);
+      checkedMap.value[group.clientId] = ids.filter((id) => groupIds.includes(id));
+    });
   } catch {
-    // 详情接口异常时保留列表数据
+    // 详情接口异常时保留已勾选为空
   }
 };
 
@@ -244,6 +286,7 @@ const handleSubmit = async () => {
   if (result !== true) return;
   submitting.value = true;
   try {
+    form.menuIds = Object.values(checkedMap.value).flat();
     if (isEdit.value) {
       await updateUcenterRole(form);
       MessagePlugin.success('修改成功');
@@ -295,11 +338,29 @@ onMounted(fetchList);
 }
 
 .uc-role-menu {
-  max-height: 320px;
   width: 100%;
+  max-height: 360px;
   overflow: auto;
   border: 1px solid var(--td-component-stroke);
   border-radius: var(--td-radius-default);
   padding: 8px;
+}
+
+.uc-role-app-group {
+  padding-bottom: 12px;
+
+  & + & {
+    border-top: 1px dashed var(--td-component-stroke);
+    padding-top: 12px;
+  }
+}
+
+.uc-role-app-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: var(--td-text-color-primary);
 }
 </style>
