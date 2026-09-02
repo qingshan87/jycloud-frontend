@@ -32,8 +32,16 @@ export interface MenuRoute {
 export type ModeType = 'dark' | 'light';
 
 export interface UserInfo {
+  /** 展示名：realname 优先，无则 username */
   name: string;
   roles: string[];
+  userId?: number;
+  username?: string;
+  realname?: string;
+  nickname?: string;
+  avatar?: string;
+  email?: string;
+  mobile?: string;
 }
 
 /** 用户关联的租户信息（jy-user t_user_tenant / t_tenant） */

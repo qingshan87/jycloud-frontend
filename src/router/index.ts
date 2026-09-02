@@ -19,7 +19,7 @@ const defaultRouterList: Array<RouteRecordRaw> = [
   },
   {
     path: '/',
-    redirect: '/user-center/home',
+    redirect: '/user-center/user',
   },
 ];
 // 存放固定路由

@@ -37,9 +37,17 @@ export const useUserStore = defineStore('user', {
       const data = await loginApi({ username: account, password });
       this.token = data.token;
       const user = data.user || {};
-      const name = String(user.nickname || user.realname || user.username || '');
+      const realname = String(user.realname || '');
+      const username = String(user.username || '');
       this.userInfo = {
-        name,
+        name: realname || username,
+        realname,
+        username,
+        nickname: String(user.nickname || ''),
+        avatar: String(user.avatar || ''),
+        email: String(user.email || ''),
+        mobile: String(user.mobile || ''),
+        userId: user.userId,
         roles: Array.from(data.roles || []),
       };
       this.permissions = Array.from(data.permissions || []);
@@ -53,9 +61,17 @@ export const useUserStore = defineStore('user', {
       const data = await switchTenantApi(tenantId);
       this.token = data.token;
       const user = data.user || {};
-      const name = String(user.nickname || user.realname || user.username || '');
+      const realname = String(user.realname || '');
+      const username = String(user.username || '');
       this.userInfo = {
-        name,
+        name: realname || username,
+        realname,
+        username,
+        nickname: String(user.nickname || ''),
+        avatar: String(user.avatar || ''),
+        email: String(user.email || ''),
+        mobile: String(user.mobile || ''),
+        userId: user.userId,
         roles: Array.from(data.roles || []),
       };
       this.permissions = Array.from(data.permissions || []);

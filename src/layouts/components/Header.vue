@@ -112,8 +112,11 @@
           </span>
           <t-dropdown :min-column-width="120" trigger="click">
             <template #dropdown>
-              <t-dropdown-item class="operations-dropdown-container-item" @click="handleNav('/user-center/profile')">
+              <t-dropdown-item class="operations-dropdown-container-item" @click="profileVisible = true">
                 <user-circle-icon />{{ t('layout.header.user') }}
+              </t-dropdown-item>
+              <t-dropdown-item class="operations-dropdown-container-item" @click="passwordVisible = true">
+                <t-icon name="lock-on" />修改密码
               </t-dropdown-item>
               <t-dropdown-item class="operations-dropdown-container-item" @click="handleLogout">
                 <poweroff-icon />{{ t('layout.header.signOut') }}
@@ -135,13 +138,15 @@
         </div>
       </template>
     </t-head-menu>
+    <profile-dialog v-model:visible="profileVisible" />
+    <password-dialog v-model:visible="passwordVisible" />
   </div>
 </template>
 <script setup lang="ts">
 import { ChevronDownIcon, PoweroffIcon, UserCircleIcon } from 'tdesign-icons-vue-next';
 import { MessagePlugin } from 'tdesign-vue-next';
 import type { PropType } from 'vue';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 import LogoFull from '@/assets/assets-logo-full.svg?component';
@@ -152,6 +157,8 @@ import { useSettingStore, useUserStore } from '@/store';
 import type { MenuRoute, ModeType } from '@/types/interface';
 
 import MenuContent from './MenuContent.vue';
+import PasswordDialog from './PasswordDialog.vue';
+import ProfileDialog from './ProfileDialog.vue';
 // import Notice from './Notice.vue';
 // import Search from './Search.vue';
 
@@ -189,6 +196,8 @@ const { theme, layout, showLogo, menu, isFixed, isCompact } = defineProps({
 const router = useRouter();
 const settingStore = useSettingStore();
 const user = useUserStore();
+const profileVisible = ref(false);
+const passwordVisible = ref(false);
 
 const active = computed(() => getActive());
 

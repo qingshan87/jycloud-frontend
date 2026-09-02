@@ -42,4 +42,27 @@ export const PERM = {
     update: 'jy-setting:dict:update',
     delete: 'jy-setting:dict:delete',
   },
+
+  ucenter: {
+    user: {
+      create: 'jy-ucenter:user:create',
+      update: 'jy-ucenter:user:update',
+      delete: 'jy-ucenter:user:delete',
+      resetPassword: 'jy-ucenter:user:resetPassword',
+      updateUsername: 'jy-ucenter:user:updateUsername',
+    },
+    role: {
+      create: 'jy-ucenter:role:create',
+      update: 'jy-ucenter:role:update',
+      delete: 'jy-ucenter:role:delete',
+    },
+    dept: {
+      create: 'jy-ucenter:dept:create',
+      update: 'jy-ucenter:dept:update',
+      delete: 'jy-ucenter:dept:delete',
+    },
+    userAuthority: {
+      set: 'jy-ucenter:user-authority:set',
+    },
+  },
 } as const;
