@@ -59,7 +59,7 @@
       :header="isEdit ? '编辑角色' : '新增角色'"
       :confirm-btn="{ content: '保存', loading: submitting }"
       cancel-btn="取消"
-      width="720px"
+      width="760px"
       @confirm="handleSubmit"
     >
       <t-form ref="formRef" :data="form" :rules="rules" label-width="90px" @submit.prevent>
@@ -81,39 +81,51 @@
         <t-form-item label="菜单权限" name="menuIds">
           <div class="uc-role-menu">
             <t-empty v-if="menuGroups.length === 0" description="当前租户暂无绑定应用" />
-            <div v-for="group in menuGroups" :key="group.clientId" class="uc-role-app-group">
-              <div class="uc-role-app-title">
-                <t-icon :name="group.icon || 'app'" />
-                <span>{{ group.appName || group.clientId }}</span>
-              </div>
-              <t-tree
-                v-if="group.menuList && group.menuList.length"
-                :data="group.menuList"
-                :keys="treeKeys"
-                :value="checkedMap[group.clientId] || []"
-                value-mode="all"
-                :loading="menuLoading"
-                checkable
-                check-strictly
-                expand-all
-                hover
-                @change="(val: Array<string | number>) => onGroupMenuChange(group, val)"
+            <t-collapse v-else v-model="activeApps">
+              <t-collapse-panel
+                v-for="group in menuGroups"
+                :key="group.clientId"
+                :value="group.clientId"
+                :disabled="!group.menuList || group.menuList.length === 0"
               >
-                <template #label="{ node }">
-                  <span>{{ node.data.menuTitle || node.data.label || node.label }}</span>
-                  <t-tag
-                    v-if="node.data.category === 1"
-                    size="small"
-                    variant="light"
-                    theme="warning"
-                    style="margin-left: 4px"
-                  >
-                    按钮
-                  </t-tag>
+                <template #header>
+                  <div class="uc-role-app-title">
+                    <t-icon :name="group.icon || 'app'" />
+                    <span>{{ group.appName || group.clientId }}</span>
+                    <t-tag size="small" variant="light" theme="primary" style="margin-left: 8px">
+                      {{ checkedCount(group) }}
+                    </t-tag>
+                  </div>
                 </template>
-              </t-tree>
-              <t-empty v-else description="该应用暂无菜单" />
-            </div>
+                <t-tree
+                  v-if="group.menuList && group.menuList.length"
+                  :data="group.menuList"
+                  :keys="treeKeys"
+                  :value="checkedMap[group.clientId] || []"
+                  value-mode="all"
+                  :loading="menuLoading"
+                  checkable
+                  check-strictly
+                  expand-all
+                  hover
+                  @change="(val: Array<string | number>) => onGroupMenuChange(group, val)"
+                >
+                  <template #label="{ node }">
+                    <span>{{ node.data.menuTitle || node.data.label || node.label }}</span>
+                    <t-tag
+                      v-if="node.data.category === 1"
+                      size="small"
+                      variant="light"
+                      theme="warning"
+                      style="margin-left: 4px"
+                    >
+                      按钮
+                    </t-tag>
+                  </template>
+                </t-tree>
+                <t-empty v-else description="该应用暂无菜单" />
+              </t-collapse-panel>
+            </t-collapse>
           </div>
         </t-form-item>
       </t-form>
@@ -209,12 +221,19 @@ const rules: Record<string, FormRule[]> = {
   roleName: [{ required: true, message: '请输入角色名称', type: 'error' }],
 };
 
-// 按应用分组的菜单树
+// 按应用分组的菜单树（默认折叠，点击应用展开）
 const menuLoading = ref(false);
 const menuGroups = ref<TenantClientMenuVO[]>([]);
+/** 展开的应用 clientId 列表 */
+const activeApps = ref<Array<string | number>>([]);
 /** 每个应用下已勾选的菜单 ID，key 为 clientId */
 const checkedMap = ref<Record<string, number[]>>({});
 const treeKeys = { value: 'menuId', label: 'menuTitle', children: 'children' };
+
+const checkedCount = (group: TenantClientMenuVO) => {
+  const list = checkedMap.value[group.clientId] || [];
+  return list.length > 0 ? `已选 ${list.length}` : '未选择';
+};
 
 const loadMenuTree = async () => {
   menuLoading.value = true;
@@ -252,6 +271,7 @@ const openCreate = async () => {
     menuIds: [],
   });
   checkedMap.value = {};
+  activeApps.value = [];
   dialogVisible.value = true;
   await loadMenuTree();
 };
@@ -267,15 +287,21 @@ const openEdit = async (row: UcenterRoleVO) => {
     menuIds: [],
   });
   checkedMap.value = {};
+  activeApps.value = [];
   dialogVisible.value = true;
   await loadMenuTree();
   try {
     const detail = await getUcenterRole(row.roleId);
     const ids = Array.isArray(detail.menuIds) ? detail.menuIds : [];
+    const expand: Array<string | number> = [];
     menuGroups.value.forEach((group) => {
       const groupIds = collectMenuIds(group.menuList);
-      checkedMap.value[group.clientId] = ids.filter((id) => groupIds.includes(id));
+      const matched = ids.filter((id) => groupIds.includes(id));
+      checkedMap.value[group.clientId] = matched;
+      // 编辑时自动展开有已授权菜单的应用
+      if (matched.length > 0) expand.push(group.clientId);
     });
+    activeApps.value = expand;
   } catch {
     // 详情接口异常时保留已勾选为空
   }
@@ -339,27 +365,16 @@ onMounted(fetchList);
 
 .uc-role-menu {
   width: 100%;
-  max-height: 360px;
+  max-height: 420px;
   overflow: auto;
   border: 1px solid var(--td-component-stroke);
   border-radius: var(--td-radius-default);
   padding: 8px;
 }
 
-.uc-role-app-group {
-  padding-bottom: 12px;
-
-  & + & {
-    border-top: 1px dashed var(--td-component-stroke);
-    padding-top: 12px;
-  }
-}
-
 .uc-role-app-title {
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-bottom: 8px;
   font-weight: 600;
   color: var(--td-text-color-primary);
 }
