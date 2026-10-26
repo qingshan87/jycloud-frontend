@@ -1,4 +1,4 @@
-import type { PageResult, SettingUser, UserForm, UserQuery } from '@/api/model/settingModel';
+import type { PageResult, SettingUser, UserForm, UserQuery } from '@/api/setting/settingModel';
 import { request } from '@/utils/request';
 
 const Api = {

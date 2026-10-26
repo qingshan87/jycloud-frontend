@@ -28,26 +28,28 @@
 
     <!-- 工具 + 列表：同一块 -->
     <t-card :bordered="false" class="tenant-users-content-card">
-      <div class="tenant-users-toolbar">
-        <t-button v-permission="PERM.user.create" theme="primary" @click="openCreate">
-          <template #icon><t-icon name="add" /></template>
-          新增租户用户
-        </t-button>
-        <t-button v-permission="PERM.userTenant.bind" theme="default" @click="openInvite">
-          <template #icon><t-icon name="user-add" /></template>
-          邀请用户
-        </t-button>
-        <!-- <span class="tenant-users-tip">新增用户默认密码为 123456，并自动绑定到当前租户</span> -->
-      </div>
-
-      <t-table
+      <managed-table
         :data="rows"
         :columns="columns"
         :pagination="pagination"
         :loading="loading"
         row-key="userId"
         @change="onTableChange"
+        @refresh="fetchList"
       >
+        <template #toolbar-left>
+          <div class="tenant-users-toolbar">
+            <t-button v-permission="PERM.user.create" theme="primary" @click="openCreate">
+              <template #icon><t-icon name="add" /></template>
+              新增租户用户
+            </t-button>
+            <t-button v-permission="PERM.userTenant.bind" theme="default" @click="openInvite">
+              <template #icon><t-icon name="user-add" /></template>
+              邀请用户
+            </t-button>
+            <!-- <span class="tenant-users-tip">新增用户默认密码为 123456，并自动绑定到当前租户</span> -->
+          </div>
+        </template>
         <template #status="{ row }">
           <t-tag :theme="row.status === 1 ? 'success' : 'danger'" variant="light">{{
             row.status === 1 ? '启用' : '禁用'
@@ -72,7 +74,7 @@
             <t-link v-permission="PERM.userTenant.remove" theme="danger" @click="handleDelete(row)">删除</t-link>
           </t-space>
         </template>
-      </t-table>
+      </managed-table>
     </t-card>
 
     <!-- 新增/编辑弹窗 -->
@@ -207,8 +209,8 @@ import type { FormInstanceFunctions, FormRule, PrimaryTableCol } from 'tdesign-v
 import { DialogPlugin, MessagePlugin } from 'tdesign-vue-next';
 import { onMounted, reactive, ref, watch } from 'vue';
 
-import type { SettingRole, SettingUser, UserForm, UserQuery } from '@/api/model/settingModel';
 import { pageRoles } from '@/api/setting/role';
+import type { SettingRole, SettingUser, UserForm, UserQuery } from '@/api/setting/settingModel';
 import {
   bindUserToTenant,
   createUser,
@@ -220,6 +222,7 @@ import {
   setUserRoles,
   updateUser,
 } from '@/api/setting/user';
+import ManagedTable from '@/components/managed-table/index.vue';
 import { PERM } from '@/constants/permission';
 
 defineOptions({ name: 'TenantUsers' });

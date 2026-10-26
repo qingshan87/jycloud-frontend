@@ -14,7 +14,7 @@ export default [
       {
         path: 'index',
         name: 'UserIndex',
-        component: () => import('@/pages/user/index.vue'),
+        component: () => import('@/pages/user-center/user/index.vue'),
         meta: { title: { zh_CN: '个人中心', en_US: 'User Center' } },
       },
     ],

@@ -89,7 +89,11 @@ const router = useRouter();
 
 const settingStore = useSettingStore();
 const tabsRouterStore = useTabsRouterStore();
-const tabRouters = computed(() => tabsRouterStore.tabRouters.filter((route) => route.isAlive || route.isHome));
+const tabRouters = computed(() =>
+  tabsRouterStore.tabRouters.filter(
+    (route) => (route.isAlive || route.isHome) && (route.isHome || router.hasRoute(route.name as string)),
+  ),
+);
 const activeTabPath = ref('');
 
 const { locale } = useLocale();

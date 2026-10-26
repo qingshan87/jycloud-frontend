@@ -1,4 +1,4 @@
-import type { MenuForm, SettingMenu } from '@/api/model/settingModel';
+import type { MenuForm, SettingMenu } from '@/api/setting/settingModel';
 import { request } from '@/utils/request';
 
 const Api = {

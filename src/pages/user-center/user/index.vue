@@ -27,21 +27,23 @@
     </t-card>
 
     <t-card :bordered="false" class="setting-content-card">
-      <div class="setting-toolbar">
-        <t-button v-permission="PERM.ucenter.user.create" theme="primary" @click="openCreate">
-          <template #icon><t-icon name="add" /></template>
-          新增用户
-        </t-button>
-      </div>
-
-      <t-table
+      <managed-table
         :data="rows"
         :columns="columns"
         :pagination="pagination"
         :loading="loading"
         row-key="userId"
         @change="onTableChange"
+        @refresh="fetchList"
       >
+        <template #toolbar-left>
+          <div class="setting-toolbar">
+            <t-button v-permission="PERM.ucenter.user.create" theme="primary" @click="openCreate">
+              <template #icon><t-icon name="add" /></template>
+              新增用户
+            </t-button>
+          </div>
+        </template>
         <template #status="{ row }">
           <t-tag :theme="row.status === 1 ? 'success' : 'danger'" variant="light">{{
             row.status === 1 ? '启用' : '禁用'
@@ -65,7 +67,7 @@
             <t-link v-permission="PERM.ucenter.user.delete" theme="danger" @click="handleDelete(row)">删除</t-link>
           </t-space>
         </template>
-      </t-table>
+      </managed-table>
     </t-card>
 
     <t-dialog
@@ -138,7 +140,7 @@ import { onMounted, reactive, ref } from 'vue';
 
 import { listUserRoles, setUserRoles } from '@/api/ucenter/authority';
 import type { UcenterRoleVO, UcenterUserForm, UcenterUserQuery, UcenterUserVO } from '@/api/ucenter/model';
-import { pageUcenterRoles } from '@/api/ucenter/role';
+import { listUcenterRoles } from '@/api/ucenter/role';
 import {
   createUcenterUser,
   deleteUcenterUser,
@@ -146,6 +148,7 @@ import {
   resetUcenterPassword,
   updateUcenterUser,
 } from '@/api/ucenter/user';
+import ManagedTable from '@/components/managed-table/index.vue';
 import { PERM } from '@/constants/permission';
 
 defineOptions({ name: 'UcenterUser' });
@@ -289,11 +292,8 @@ const openRole = async (row: UcenterUserVO) => {
   currentUser.value = row;
   roleVisible.value = true;
   try {
-    const [rolePage, roleIds] = await Promise.all([
-      pageUcenterRoles({ pageNum: 1, pageSize: 200 }),
-      listUserRoles(row.userId),
-    ]);
-    roleList.value = rolePage.records || [];
+    const [roles, roleIds] = await Promise.all([listUcenterRoles(), listUserRoles(row.userId)]);
+    roleList.value = roles || [];
     selectedRoleIds.value = Array.isArray(roleIds) ? roleIds : [];
   } catch (e: any) {
     MessagePlugin.error(e?.message || '加载角色失败');

@@ -17,7 +17,7 @@
       </template>
       <menu-content :nav-data="menu" />
       <template #operations>
-        <span :class="versionCls"> {{ !collapsed ? '设置平台' : '' }} {{ pgk.version }} </span>
+        <span :class="versionCls"> {{ !collapsed ? appName : '' }} {{ pgk.version }} </span>
       </template>
     </t-menu>
     <div :class="`${prefix}-side-nav-placeholder${collapsed ? '-hidden' : ''}`"></div>
@@ -34,7 +34,7 @@ import AssetLogoFull from '@/assets/assets-logo-full.svg?component';
 import AssetLogo from '@/assets/assets-t-logo.svg?component';
 import { prefix } from '@/config/global';
 import { getActive } from '@/router';
-import { useSettingStore } from '@/store';
+import {useSettingStore, useUserStore} from '@/store';
 import type { MenuRoute, ModeType } from '@/types/interface';
 
 import pgk from '../../../package.json';
@@ -72,7 +72,7 @@ const { menu, showLogo, isFixed, layout, theme, isCompact } = defineProps({
 });
 
 const MIN_POINT = 992 - 1;
-
+const appName = computed(() => useUserStore().currentApp?.appName || '');
 const collapsed = computed(() => useSettingStore().isSidebarCompact);
 const menuAutoCollapsed = computed(() => useSettingStore().menuAutoCollapsed);
 

@@ -32,21 +32,23 @@
 
     <!-- 工具 + 列表：同一块 -->
     <t-card :bordered="false" class="setting-content-card">
-      <div class="setting-toolbar">
-        <t-button v-permission="PERM.role.create" theme="primary" @click="openCreate">
-          <template #icon><t-icon name="add" /></template>
-          新增管理员角色
-        </t-button>
-      </div>
-
-      <t-table
+      <managed-table
         :data="rows"
         :columns="columns"
         :pagination="pagination"
         :loading="loading"
         row-key="roleId"
         @change="onTableChange"
+        @refresh="fetchList"
       >
+        <template #toolbar-left>
+          <div class="setting-toolbar">
+            <t-button v-permission="PERM.role.create" theme="primary" @click="openCreate">
+              <template #icon><t-icon name="add" /></template>
+              新增管理员角色
+            </t-button>
+          </div>
+        </template>
         <template #readonly="{ row }">
           <t-tag v-if="row.readonly === 1" theme="warning" variant="light">内置</t-tag>
           <t-tag v-else theme="default" variant="light">普通</t-tag>
@@ -62,7 +64,7 @@
             <t-link v-permission="PERM.role.delete" theme="danger" @click="handleDelete(row)">删除</t-link>
           </t-space>
         </template>
-      </t-table>
+      </managed-table>
     </t-card>
 
     <!-- 新增/编辑弹窗 -->
@@ -165,11 +167,12 @@ import type { FormInstanceFunctions, FormRule, PrimaryTableCol, SelectOption, Tr
 import { DialogPlugin, MessagePlugin } from 'tdesign-vue-next';
 import { nextTick, onMounted, reactive, ref, watch } from 'vue';
 
-import type { RoleForm, RoleQuery, SettingRole, SettingTenant } from '@/api/model/settingModel';
 import { treeMenus } from '@/api/setting/menu';
 import { createRole, deleteRole, detailRole, pageRoles, updateRole } from '@/api/setting/role';
+import type { RoleForm, RoleQuery, SettingRole, SettingTenant } from '@/api/setting/settingModel';
 import { pageTenants } from '@/api/setting/tenant';
 import { listTenantClients } from '@/api/setting/tenantClient';
+import ManagedTable from '@/components/managed-table/index.vue';
 import { PERM } from '@/constants/permission';
 
 defineOptions({ name: 'SettingRole' });

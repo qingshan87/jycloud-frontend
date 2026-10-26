@@ -25,7 +25,7 @@ import type { FormInstanceFunctions, FormRule } from 'tdesign-vue-next';
 import { MessagePlugin } from 'tdesign-vue-next';
 import { reactive, ref, watch } from 'vue';
 
-import { updatePassword } from '@/api/account';
+import { updatePassword } from '@/api/user/account';
 
 defineOptions({ name: 'PasswordDialog' });
 

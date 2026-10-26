@@ -28,22 +28,24 @@
 
     <!-- 工具 + 列表：同一块 -->
     <t-card :bordered="false" class="setting-content-card">
-      <div class="setting-toolbar">
-        <t-button v-permission="PERM.tenant.create" theme="primary" @click="openCreate">
-          <template #icon><t-icon name="add" /></template>
-          新增租户
-        </t-button>
-        <span class="setting-toolbar-tip">创建租户时系统会自动生成租户ID并创建「租户管理员」角色</span>
-      </div>
-
-      <t-table
+      <managed-table
         :data="rows"
         :columns="columns"
         :pagination="pagination"
         :loading="loading"
         row-key="id"
         @change="onTableChange"
+        @refresh="fetchList"
       >
+        <template #toolbar-left>
+          <div class="setting-toolbar">
+            <t-button v-permission="PERM.tenant.create" theme="primary" @click="openCreate">
+              <template #icon><t-icon name="add" /></template>
+              新增租户
+            </t-button>
+            <span class="setting-toolbar-tip">创建租户时系统会自动生成租户ID并创建「租户管理员」角色</span>
+          </div>
+        </template>
         <template #status="{ row }">
           <t-tag :theme="row.status === 1 ? 'success' : 'danger'" variant="light">{{
             row.status === 1 ? '启用' : '禁用'
@@ -56,7 +58,7 @@
             <t-link v-permission="PERM.tenant.delete" theme="danger" @click="handleDelete(row)">删除</t-link>
           </t-space>
         </template>
-      </t-table>
+      </managed-table>
     </t-card>
 
     <!-- 新增/编辑弹窗 -->
@@ -111,8 +113,9 @@ import type { FormInstanceFunctions, FormRule, PrimaryTableCol } from 'tdesign-v
 import { DialogPlugin, MessagePlugin } from 'tdesign-vue-next';
 import { computed, onMounted, reactive, ref } from 'vue';
 
-import type { SettingTenant, TenantForm, TenantQuery } from '@/api/model/settingModel';
+import type { SettingTenant, TenantForm, TenantQuery } from '@/api/setting/settingModel';
 import { createTenant, deleteTenant, pageTenants, updateTenant } from '@/api/setting/tenant';
+import ManagedTable from '@/components/managed-table/index.vue';
 import { PERM } from '@/constants/permission';
 
 import TenantApps from './components/TenantApps.vue';

@@ -1,18 +1,34 @@
 import { defineStore } from 'pinia';
 import type { RouteRecordRaw } from 'vue-router';
 
-import { login as loginApi, logout as logoutApi, switchTenant as switchTenantApi } from '@/api/auth';
-import type { MyApp } from '@/api/model/permissionModel';
-import { getMyApps } from '@/api/permission';
-import { CLIENT_ID } from '@/constants';
+import { login as loginApi, logout as logoutApi, switchTenant as switchTenantApi } from '@/api/user/auth';
+import { getMyApps } from '@/api/user/permission';
+import type { MyApp } from '@/api/user/permissionModel';
+import { CLIENT_ID, USER_CENTER_CLIENT_ID } from '@/constants';
 import router from '@/router';
-import { usePermissionStore } from '@/store';
+import { usePermissionStore, useTabsRouterStore } from '@/store';
 import type { UserInfo, UserTenant } from '@/types/interface';
 
 const InitUserInfo: UserInfo = {
   name: '', // 用户名，用于展示在页面右上角头像旁
   roles: [], // 登录接口返回的角色
 };
+
+/**
+ * Find the first real page path in dynamic routes.
+ * Single-page menus are wrapped with path="" and the real path lives in children,
+ * so scanning only top-level paths falls back to "/" and lands on the wrong page.
+ */
+function resolveFirstPagePath(routes: RouteRecordRaw[], parentPath = ''): string {
+  for (const route of routes) {
+    if (route.path === '/:w+') continue;
+    const currentPath = route.path ? `${parentPath}/${route.path}`.replace(/\/{2,}/g, '/') : parentPath;
+    const childPath = route.children?.length ? resolveFirstPagePath(route.children, currentPath) : '';
+    if (childPath) return childPath;
+    if (currentPath && currentPath !== '/') return currentPath;
+  }
+  return '/';
+}
 
 export const useUserStore = defineStore('user', {
   state: () => ({
@@ -79,11 +95,12 @@ export const useUserStore = defineStore('user', {
       this.tenant = data.tenantDto || null;
       this.tenants = Array.isArray(data.tenantDtos) ? data.tenantDtos : [];
       await this.loadMyApps();
+      await this.switchApp(USER_CENTER_CLIENT_ID);
 
       // 移除旧租户的动态路由，跳转首页触发路由守卫按新租户重建菜单
-      const permissionStore = usePermissionStore();
-      permissionStore.restoreRoutes();
-      await router.push('/');
+      // const permissionStore = usePermissionStore();
+      // permissionStore.restoreRoutes();
+      // await router.push('/');
     },
     /** 获取用户信息：登录接口已返回，直接复用本地缓存 */
     /** 获取当前用户可用应用列表（jy-user 公共接口 system/user/apps，按用户权限过滤） */
@@ -108,8 +125,12 @@ export const useUserStore = defineStore('user', {
     /** 切换应用：同租户内不换 token，仅切换 clientId 上下文并重建菜单路由 */
     async switchApp(clientId: string) {
       const app = this.clients.find((item) => item.clientId === clientId);
-      if (!app || app.clientId === this.currentApp?.clientId) return;
+      // if (!app || app.clientId === this.currentApp?.clientId) return;
       this.currentApp = app;
+
+      // keep only the home icon tab for the new app; old app tabs will be appended on navigation
+      const tabsRouterStore = useTabsRouterStore();
+      tabsRouterStore.resetTabRouterList();
 
       const permissionStore = usePermissionStore();
       permissionStore.restoreRoutes();
@@ -117,7 +138,7 @@ export const useUserStore = defineStore('user', {
       routeList.forEach((item: RouteRecordRaw) => {
         router.addRoute(item);
       });
-      const target = routeList.find((item) => item.path && item.path !== '/:w+')?.path || '/';
+      const target = resolveFirstPagePath(routeList);
       await router.push(target);
     },
 

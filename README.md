@@ -11,6 +11,7 @@ JYCloud 统一前端控制台：一套前端承载平台全部系统（用户中
 - 动态菜单与路由：登录后调用 `/jy-user/system/user/router/menu` 获取当前用户菜单树，动态生成路由与侧边栏。
 - 按钮级权限控制：`PERM` 权限标识常量 + `hasPerm` 判断 + 全局 `v-permission` 指令，权限标识来自登录响应与菜单树合并。
 - 设置平台管理模块：用户、租户（含租户用户/应用）、角色、菜单、应用、字典的完整管理页面。
+- 日志管理：登录日志、操作日志、API 调用日志、错误日志的条件分页查询与详情查看。
 - 布局与品牌：侧边栏/顶栏/混合布局、主题色、明暗模式、多语言、多标签页。
 - 外链支持：菜单可配置为 iframe 内嵌（`frameSrc`）或新窗口打开（`frameBlank`）。
 - 请求层：自动携带 `Authorization` 与 `clientId` 请求头，接口统一 `/api` 前缀，开发环境由 Vite 代理到网关。
@@ -102,8 +103,14 @@ npm run stylelint    # Stylelint 检查
 | 菜单管理 | `src/pages/setting/menu/index.vue` | 按应用维护菜单树（菜单/按钮），组件路径对应 `src/pages` |
 | 应用管理 | `src/pages/setting/client/index.vue` | 业务系统增删改查、重置密钥 |
 | 字典管理 | `src/pages/setting/dict/index.vue` | 维护字典类型与字典项，供各业务系统复用 |
+| 登录日志 | `src/pages/setting/log/login/index.vue` | 按租户、账号、结果、登录方式、IP、终端和时间范围分页查询 |
+| 操作日志 | `src/pages/setting/log/operation/index.vue` | 查询业务操作结果、请求上下文、耗时、参数与返回值 |
+| API 日志 | `src/pages/setting/log/api/index.vue` | 查询跨服务 API 调用、响应码、耗时和响应数据 |
+| 错误日志 | `src/pages/setting/log/error/index.vue` | 查询异常信息、请求参数和完整异常堆栈 |
 
 页面访问依赖后端 `t_menu` 中配置的菜单（`client_id = 1111`）。初始化菜单可直接执行 [docs/setting-menu.sql](docs/setting-menu.sql)，接口约定见 [docs/setting-api.md](docs/setting-api.md)。
+
+全新环境可执行 [docs/setting-log-menu.sql](docs/setting-log-menu.sql)。如果数据库中已经存在“日志管理”父菜单但层级或子菜单不完整，请执行可重复运行的 [docs/setting-log-menu-fix.sql](docs/setting-log-menu-fix.sql)。
 
 ## 目录结构
 

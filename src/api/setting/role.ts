@@ -1,4 +1,4 @@
-import type { PageResult, RoleForm, RoleQuery, SettingRole } from '@/api/model/settingModel';
+import type { PageResult, RoleForm, RoleQuery, SettingRole } from '@/api/setting/settingModel';
 import { request } from '@/utils/request';
 
 const Api = {

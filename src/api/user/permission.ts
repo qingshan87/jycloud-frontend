@@ -1,4 +1,4 @@
-import type { MenuListResult, MenuVO, MyApp, RouteItem } from '@/api/model/permissionModel';
+import type { MenuListResult, MenuVO, MyApp, RouteItem } from '@/api/user/permissionModel';
 import { request } from '@/utils/request';
 
 const Api = {
@@ -26,6 +26,7 @@ function transformMenu(menus: MenuVO[] | undefined): RouteItem[] {
     const children = transformMenu(menu.children);
     const isDir = children.length > 0;
     const component = menu.component || (isDir ? 'LAYOUT' : '');
+    const routePath = isDir ? resolveDirectoryPath(menu.path, children) : menu.path || '';
     if (!isDir && !component) {
       // 没有 children 就是单页面,必须配置 component 指向 src/pages 下的页面
       console.warn(
@@ -34,13 +35,13 @@ function transformMenu(menus: MenuVO[] | undefined): RouteItem[] {
       continue;
     }
     result.push({
-      path: menu.path || '',
+      path: routePath,
       name: menu.menuName || `menu-${menu.menuId}`,
       component: isDir ? 'LAYOUT' : component,
       redirect: isDir
         ? children[0]?.path?.startsWith('/')
           ? children[0].path
-          : `${menu.path}/${children[0]?.path || ''}`
+          : `${routePath}/${children[0]?.path || ''}`
         : undefined,
       meta: {
         title: menu.menuTitle,
@@ -52,6 +53,15 @@ function transformMenu(menus: MenuVO[] | undefined): RouteItem[] {
     });
   }
   return result;
+}
+
+/** 兼容目录菜单未配置 path 的情况，从首个子菜单路径推导目录路径 */
+function resolveDirectoryPath(path: string | undefined, children: RouteItem[]): string {
+  if (path) return path;
+  const childPath = children[0]?.path;
+  if (!childPath?.startsWith('/')) return '';
+  const lastSlashIndex = childPath.lastIndexOf('/');
+  return lastSlashIndex > 0 ? childPath.slice(0, lastSlashIndex) : '';
 }
 
 export function getMenuList() {

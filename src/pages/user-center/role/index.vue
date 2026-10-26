@@ -21,21 +21,23 @@
     </t-card>
 
     <t-card :bordered="false" class="setting-content-card">
-      <div class="setting-toolbar">
-        <t-button v-permission="PERM.ucenter.role.create" theme="primary" @click="openCreate">
-          <template #icon><t-icon name="add" /></template>
-          新增角色
-        </t-button>
-      </div>
-
-      <t-table
+      <managed-table
         :data="rows"
         :columns="columns"
         :pagination="pagination"
         :loading="loading"
         row-key="roleId"
         @change="onTableChange"
+        @refresh="fetchList"
       >
+        <template #toolbar-left>
+          <div class="setting-toolbar">
+            <t-button v-permission="PERM.ucenter.role.create" theme="primary" @click="openCreate">
+              <template #icon><t-icon name="add" /></template>
+              新增角色
+            </t-button>
+          </div>
+        </template>
         <template #readonly="{ row }">
           <t-tag v-if="row.readonly === 1" theme="warning" variant="light">内置</t-tag>
           <t-tag v-else theme="default" variant="light">普通</t-tag>
@@ -51,7 +53,7 @@
             <t-link v-permission="PERM.ucenter.role.delete" theme="danger" @click="handleDelete(row)">删除</t-link>
           </t-space>
         </template>
-      </t-table>
+      </managed-table>
     </t-card>
 
     <t-dialog
@@ -152,6 +154,7 @@ import {
   pageUcenterRoles,
   updateUcenterRole,
 } from '@/api/ucenter/role';
+import ManagedTable from '@/components/managed-table/index.vue';
 import { PERM } from '@/constants/permission';
 
 defineOptions({ name: 'UcenterRole' });
@@ -169,7 +172,7 @@ const pagination = reactive({ current: 1, pageSize: 10, total: 0, showJumper: tr
 const columns: PrimaryTableCol[] = [
   { colKey: 'roleName', title: '角色名称', width: 180 },
   { colKey: 'remark', title: '备注', minWidth: 160 },
-  { colKey: 'readonly', title: '类型', width: 90 },
+  { colKey: 'readonly', title: '角色类型', width: 90 },
   { colKey: 'sort', title: '排序', width: 80 },
   { colKey: 'status', title: '状态', width: 90 },
   { colKey: 'createTime', title: '创建时间', width: 170 },

@@ -1,4 +1,4 @@
-import type { PageResult, SettingTenant, TenantForm, TenantQuery } from '@/api/model/settingModel';
+import type { PageResult, SettingTenant, TenantForm, TenantQuery } from '@/api/setting/settingModel';
 import { request } from '@/utils/request';
 
 const Api = {

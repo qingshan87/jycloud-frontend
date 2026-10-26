@@ -30,23 +30,27 @@
 
     <!-- 工具 + 列表：同一块 -->
     <t-card :bordered="false" class="setting-content-card">
-      <div class="setting-toolbar">
-        <t-button v-permission="PERM.client.create" theme="primary" @click="openCreate">
-          <template #icon><t-icon name="add" /></template>
-          新增应用
-        </t-button>
-      </div>
-
-      <t-table
+      <managed-table
         :data="rows"
         :columns="columns"
         :pagination="pagination"
         :loading="loading"
         row-key="id"
         @change="onTableChange"
+        @refresh="fetchList"
       >
+        <template #toolbar-left>
+          <div class="setting-toolbar">
+            <t-button v-permission="PERM.client.create" theme="primary" @click="openCreate">
+              <template #icon><t-icon name="add" /></template>
+              新增应用
+            </t-button>
+          </div>
+        </template>
         <template #category="{ row }">
-          {{ CATEGORY_MAP[row.category ?? 1] || '-' }}
+          <t-tag :theme="CATEGORY_THEME[row.category] ?? 'default'" variant="light">
+            {{ CATEGORY_MAP[row.category] ?? '-' }}
+          </t-tag>
         </template>
         <template #status="{ row }">
           <t-tag :theme="row.status === 1 ? 'success' : 'danger'" variant="light">{{
@@ -67,7 +71,7 @@
             <t-link v-permission="PERM.client.delete" theme="danger" @click="handleDelete(row)">删除</t-link>
           </t-space>
         </template>
-      </t-table>
+      </managed-table>
     </t-card>
 
     <!-- 新增/编辑弹窗 -->
@@ -168,7 +172,6 @@ import type { FormInstanceFunctions, FormRule, PrimaryTableCol } from 'tdesign-v
 import { DialogPlugin, MessagePlugin } from 'tdesign-vue-next';
 import { onMounted, reactive, ref } from 'vue';
 
-import type { ClientForm, ClientQuery, SettingClient } from '@/api/model/settingModel';
 import {
   createClient,
   deleteClient,
@@ -177,6 +180,8 @@ import {
   resetClientSecret,
   updateClient,
 } from '@/api/setting/client';
+import type { ClientForm, ClientQuery, SettingClient } from '@/api/setting/settingModel';
+import ManagedTable from '@/components/managed-table/index.vue';
 import { PERM } from '@/constants/permission';
 
 defineOptions({ name: 'SettingClient' });
@@ -186,6 +191,11 @@ const CATEGORY_OPTIONS = [
   { label: '业务系统', value: 1 },
   { label: '外部系统', value: 2 },
 ];
+const CATEGORY_THEME: Record<number, string> = {
+  0: 'primary',
+  1: 'success',
+  2: 'danger', // 红色
+};
 const CATEGORY_MAP: Record<number, string> = { 0: '内部系统', 1: '业务系统', 2: '外部系统' };
 const STATUS_OPTIONS = [
   { label: '启用', value: 1 },

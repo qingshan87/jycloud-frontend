@@ -5,6 +5,7 @@ import type { UcenterRoleForm, UcenterRoleQuery, UcenterRoleVO } from './model';
 /** 用户中心（jy-ucenter）：角色管理 */
 const Api = {
   Page: '/jy-ucenter/system/role/page',
+  List: '/jy-ucenter/system/role/list',
   Create: '/jy-ucenter/system/role/create',
   Update: '/jy-ucenter/system/role/update',
   Detail: (roleId: number) => `/jy-ucenter/system/role/detail/${roleId}`,
@@ -18,6 +19,9 @@ export function pageUcenterRoles(params: UcenterRoleQuery) {
   });
 }
 
+export function listUcenterRoles() {
+  return request.get<UcenterRoleVO[]>({ url: Api.List });
+}
 export function createUcenterRole(data: UcenterRoleForm) {
   return request.post({ url: Api.Create, data });
 }

@@ -39,6 +39,7 @@
     "@types/echarts": "^4.9.21",
     "@types/lodash": "^4.17.6",
     "@types/mockjs": "^1.0.10",
+    "@types/node": "^22.20.5",
     "@types/nprogress": "^0.2.3",
     "@types/qs": "^6.9.17",
     "@vitejs/plugin-vue": "^5.0.4",

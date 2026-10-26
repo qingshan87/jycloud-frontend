@@ -1,14 +1,22 @@
 <template>
   <div class="setting-page">
     <t-card :bordered="false" class="setting-content-card">
-      <div class="setting-toolbar">
-        <t-button v-permission="PERM.ucenter.dept.create" theme="primary" @click="openCreate(0)">
-          <template #icon><t-icon name="add" /></template>
-          新增部门
-        </t-button>
-      </div>
-
-      <t-table :data="rows" :columns="columns" :loading="loading" row-key="deptId" :tree="{ childrenKey: 'children' }">
+      <managed-table
+        :data="rows"
+        :columns="columns"
+        :loading="loading"
+        row-key="deptId"
+        :tree="{ childrenKey: 'children' }"
+        @refresh="fetchList"
+      >
+        <template #toolbar-left>
+          <div class="setting-toolbar">
+            <t-button v-permission="PERM.ucenter.dept.create" theme="primary" @click="openCreate(0)">
+              <template #icon><t-icon name="add" /></template>
+              新增部门
+            </t-button>
+          </div>
+        </template>
         <template #status="{ row }">
           <t-tag :theme="row.status === 1 ? 'success' : 'danger'" variant="light">{{
             row.status === 1 ? '启用' : '禁用'
@@ -23,8 +31,7 @@
             <t-link v-permission="PERM.ucenter.dept.delete" theme="danger" @click="handleDelete(row)">删除</t-link>
           </t-space>
         </template>
-      </t-table>
-      <t-empty v-if="!loading && rows.length === 0" description="暂无部门" />
+      </managed-table>
     </t-card>
 
     <t-dialog
@@ -71,6 +78,7 @@ import { computed, onMounted, reactive, ref } from 'vue';
 
 import { createUcenterDept, deleteUcenterDept, treeUcenterDepts, updateUcenterDept } from '@/api/ucenter/dept';
 import type { UcenterDeptForm, UcenterDeptVO } from '@/api/ucenter/model';
+import ManagedTable from '@/components/managed-table/index.vue';
 import { PERM } from '@/constants/permission';
 
 defineOptions({ name: 'UcenterDept' });

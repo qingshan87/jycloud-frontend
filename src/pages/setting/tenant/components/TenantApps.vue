@@ -1,15 +1,15 @@
 <template>
   <div>
-    <!-- 工具栏 -->
-    <div class="tenant-apps-toolbar">
-      <t-button v-permission="PERM.tenantClient.set" theme="primary" @click="openBind">
-        <template #icon><t-icon name="add" /></template>
-        绑定应用
-      </t-button>
-    </div>
-
     <!-- 列表 -->
-    <t-table :data="rows" :columns="columns" :loading="loading" row-key="id">
+    <managed-table :data="rows" :columns="columns" :loading="loading" row-key="id" @refresh="fetchList">
+      <template #toolbar-left>
+        <div class="tenant-apps-toolbar">
+          <t-button v-permission="PERM.tenantClient.set" theme="primary" @click="openBind">
+            <template #icon><t-icon name="add" /></template>
+            绑定应用
+          </t-button>
+        </div>
+      </template>
       <template #category="{ row }">
         {{ CATEGORY_MAP[row.category ?? 1] || '-' }}
       </template>
@@ -25,7 +25,7 @@
       <template #op="{ row }">
         <t-link v-permission="PERM.tenantClient.set" theme="danger" @click="handleUnbind(row)">移除</t-link>
       </template>
-    </t-table>
+    </managed-table>
     <t-empty v-if="!loading && rows.length === 0" description="该租户暂未绑定应用" />
 
     <!-- 绑定应用弹窗 -->
@@ -59,9 +59,10 @@ import type { PrimaryTableCol, SelectOption } from 'tdesign-vue-next';
 import { DialogPlugin, MessagePlugin } from 'tdesign-vue-next';
 import { onMounted, ref, watch } from 'vue';
 
-import type { SettingClient, TenantClient } from '@/api/model/settingModel';
 import { pageClients } from '@/api/setting/client';
+import type { SettingClient, TenantClient } from '@/api/setting/settingModel';
 import { bindTenantClient, listTenantClients, unbindTenantClient } from '@/api/setting/tenantClient';
+import ManagedTable from '@/components/managed-table/index.vue';
 import { DEFAULT_TENANT_ID, SETTING_CLIENT_ID } from '@/constants';
 import { PERM } from '@/constants/permission';
 

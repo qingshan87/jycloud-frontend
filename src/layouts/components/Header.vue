@@ -130,11 +130,11 @@
               <template #suffix><chevron-down-icon /></template>
             </t-button>
           </t-dropdown>
-          <!--          <t-tooltip placement="bottom" :content="t('layout.header.setting')"> -->
-          <!--            <t-button theme="default" shape="square" variant="text" @click="toggleSettingPanel"> -->
-          <!--              <setting-icon /> -->
-          <!--            </t-button> -->
-          <!--          </t-tooltip> -->
+          <t-tooltip placement="bottom" :content="t('layout.header.setting')">
+            <t-button theme="default" shape="square" variant="text" @click="toggleSettingPanel">
+              <setting-icon />
+            </t-button>
+          </t-tooltip>
         </div>
       </template>
     </t-head-menu>
@@ -143,7 +143,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ChevronDownIcon, PoweroffIcon, UserCircleIcon } from 'tdesign-icons-vue-next';
+import { ChevronDownIcon, PoweroffIcon, SettingIcon, UserCircleIcon } from 'tdesign-icons-vue-next';
 import { MessagePlugin } from 'tdesign-vue-next';
 import type { PropType } from 'vue';
 import { computed, ref } from 'vue';
@@ -198,6 +198,12 @@ const settingStore = useSettingStore();
 const user = useUserStore();
 const profileVisible = ref(false);
 const passwordVisible = ref(false);
+
+const toggleSettingPanel = () => {
+  settingStore.updateConfig({
+    showSettingPanel: true,
+  });
+};
 
 const active = computed(() => getActive());
 

@@ -20,16 +20,7 @@
 
     <!-- 工具 + 列表：同一块 -->
     <t-card :bordered="false" class="setting-content-card">
-      <div class="setting-toolbar">
-        <t-button v-permission="PERM.dict.create" theme="primary" @click="openCreateType">
-          <template #icon><t-icon name="add" /></template>
-          新增字典类型
-        </t-button>
-        <t-button theme="default" @click="expandAll">展开全部</t-button>
-        <t-button theme="default" @click="collapseAll">收起全部</t-button>
-      </div>
-
-      <t-table
+      <managed-table
         :data="visibleRows"
         :columns="columns"
         :pagination="pagination"
@@ -37,7 +28,18 @@
         row-key="dictId"
         disable-data-page
         @change="onTableChange"
+        @refresh="fetchList"
       >
+        <template #toolbar-left>
+          <div class="setting-toolbar">
+            <t-button v-permission="PERM.dict.create" theme="primary" @click="openCreateType">
+              <template #icon><t-icon name="add" /></template>
+              新增字典类型
+            </t-button>
+            <t-button theme="default" @click="expandAll">展开全部</t-button>
+            <t-button theme="default" @click="collapseAll">收起全部</t-button>
+          </div>
+        </template>
         <template #dictValue="{ row }">
           <div class="setting-dict-name-cell" :style="{ paddingLeft: `${row.level * 24}px` }">
             <span v-if="isExpandable(row)" class="setting-dict-toggle" @click.stop="toggleExpand(row)">
@@ -76,7 +78,7 @@
             <t-link v-permission="PERM.dict.delete" theme="danger" @click="handleDelete(row)">删除</t-link>
           </t-space>
         </template>
-      </t-table>
+      </managed-table>
     </t-card>
 
     <!-- 新增/编辑字典类型弹窗 -->
@@ -150,8 +152,9 @@ import type { FormInstanceFunctions, FormRule, PrimaryTableCol } from 'tdesign-v
 import { DialogPlugin, MessagePlugin } from 'tdesign-vue-next';
 import { computed, onMounted, reactive, ref } from 'vue';
 
-import type { DictForm, DictQuery, DictVO } from '@/api/model/settingModel';
 import { createDict, deleteDict, getDictTreeByCode, pageDicts, updateDict } from '@/api/setting/dict';
+import type { DictForm, DictQuery, DictVO } from '@/api/setting/settingModel';
+import ManagedTable from '@/components/managed-table/index.vue';
 import { PERM } from '@/constants/permission';
 
 defineOptions({ name: 'SettingDict' });

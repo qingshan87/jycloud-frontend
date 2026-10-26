@@ -1,4 +1,4 @@
-import type { TenantClient, TenantClientForm } from '@/api/model/settingModel';
+import type { TenantClient, TenantClientForm } from '@/api/setting/settingModel';
 import { request } from '@/utils/request';
 
 const Api = {

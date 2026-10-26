@@ -36,6 +36,10 @@ export const useTabsRouterStore = defineStore('tabsRouter', {
     },
     // 处理新增
     appendTabRouterList(newRoute: TRouterInfo) {
+      // always keep the home icon tab first (same as td_base), even if persisted state lost it
+      const homeTabs = this.tabRouterList.filter((route: TRouterInfo) => route.isHome);
+      const otherTabs = this.tabRouterList.filter((route: TRouterInfo) => !route.isHome);
+      this.tabRouterList = [...(homeTabs.length > 0 ? homeTabs : homeRoute), ...otherTabs];
       // 不要将判断条件newRoute.meta.keepAlive !== false修改为newRoute.meta.keepAlive，starter默认开启保活，所以meta.keepAlive未定义时也需要进行保活，只有显式说明false才禁用保活。
       const needAlive = !ignoreCacheRoutes.includes(newRoute.name as string) && newRoute.meta?.keepAlive !== false;
       if (!this.tabRouters.find((route: TRouterInfo) => route.path === newRoute.path)) {
@@ -75,6 +79,10 @@ export const useTabsRouterStore = defineStore('tabsRouter', {
     },
     removeTabRouterList() {
       this.tabRouterList = [];
+    },
+    // keep only the home icon tab, used when switching apps
+    resetTabRouterList() {
+      this.tabRouterList = [...homeRoute];
     },
     initTabRouterList(newRoutes: TRouterInfo[]) {
       newRoutes?.forEach((route: TRouterInfo) => this.appendTabRouterList(route));

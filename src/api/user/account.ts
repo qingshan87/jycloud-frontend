@@ -1,4 +1,4 @@
-import type { PasswordDTO, UserProfileDTO, UserVO } from '@/api/model/userModel';
+import type { PasswordDTO, UserProfileDTO, UserVO } from '@/api/user/userModel';
 import { request } from '@/utils/request';
 
 /** jy-user 公共接口：当前用户个人资料 / 密码 */

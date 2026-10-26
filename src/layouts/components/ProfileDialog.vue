@@ -44,8 +44,8 @@ import type { FormInstanceFunctions, FormRule } from 'tdesign-vue-next';
 import { MessagePlugin } from 'tdesign-vue-next';
 import { reactive, ref, watch } from 'vue';
 
-import { getUserProfile, updateProfile } from '@/api/account';
-import type { UserProfileDTO } from '@/api/model/userModel';
+import { getUserProfile, updateProfile } from '@/api/user/account';
+import type { UserProfileDTO } from '@/api/user/userModel';
 import { useUserStore } from '@/store';
 
 defineOptions({ name: 'ProfileDialog' });

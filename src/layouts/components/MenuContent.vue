@@ -3,28 +3,29 @@
     <template v-for="item in list" :key="item.path">
       <template v-if="!item.children || !item.children.length || item.meta?.single">
         <t-menu-item v-if="getHref(item)" :name="item.path" :value="getPath(item)" @click="openHref(getHref(item)[0])">
-          <template #icon>
+          <template v-if="showIcon" #icon>
             <component :is="menuIcon(item)" class="t-icon"></component>
           </template>
           {{ renderMenuTitle(item.title) }}
         </t-menu-item>
         <t-menu-item v-else :name="item.path" :value="getPath(item)" :to="item.path">
-          <template #icon>
+          <template v-if="showIcon" #icon>
             <component :is="menuIcon(item)" class="t-icon"></component>
           </template>
           {{ renderMenuTitle(item.title) }}
         </t-menu-item>
       </template>
       <t-submenu v-else :name="item.path" :value="item.path" :title="renderMenuTitle(item.title)">
-        <template #icon>
+        <template v-if="showIcon" #icon>
           <component :is="menuIcon(item)" class="t-icon"></component>
         </template>
-        <menu-content v-if="item.children" :nav-data="item.children" />
+        <menu-content v-if="item.children" :nav-data="item.children" :show-icon="false" />
       </t-submenu>
     </template>
   </div>
 </template>
 <script setup lang="tsx">
+import isEqual from 'lodash/isEqual';
 import type { PropType } from 'vue';
 import { computed } from 'vue';
 
@@ -34,10 +35,14 @@ import type { MenuRoute } from '@/types/interface';
 
 type ListItemType = MenuRoute & { icon?: string };
 
-const { navData } = defineProps({
+const { navData, showIcon } = defineProps({
   navData: {
     type: Array as PropType<MenuRoute[]>,
     default: () => [],
+  },
+  showIcon: {
+    type: Boolean,
+    default: true,
   },
 });
 
@@ -73,8 +78,8 @@ const getMenuList = (list: MenuRoute[], basePath?: string): ListItemType[] => {
 
       // 顶层单页:transformObjectToRoute 会把非 LAYOUT 组件的顶层路由包装成
       // path='' 的 LAYOUT 父节点 + 子节点克隆。这里把包装层拍平,
-      // 按"没有真实 children 就是单页面"渲染,避免侧边栏出现两层同名菜单。
-      if (item.path === '' && item.children?.length === 1) {
+      // 仅父子和标题完全相同时视为包装层,避免显式目录被错误拍平。
+      if (item.path === '' && item.children?.length === 1 && isEqual(item.meta?.title, item.children[0].meta?.title)) {
         const child = item.children[0];
         const childPath = `${path}/${child.path}`.replace(/\/{2,}/g, '/');
         return {

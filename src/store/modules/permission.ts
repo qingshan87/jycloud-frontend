@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia';
 import type { RouteRecordRaw } from 'vue-router';
 
-import type { RouteItem } from '@/api/model/permissionModel';
-import { getMenuList } from '@/api/permission';
+import type { RouteItem } from '@/api/user/permissionModel';
+import { getMenuList } from '@/api/user/permission';
 import router, { homepageRouterList } from '@/router';
 import { store } from '@/store';
 import { transformObjectToRoute } from '@/utils/route';

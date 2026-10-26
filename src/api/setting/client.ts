@@ -1,4 +1,4 @@
-import type { ClientForm, ClientQuery, PageResult, SettingClient } from '@/api/model/settingModel';
+import type { ClientForm, ClientQuery, PageResult, SettingClient } from '@/api/setting/settingModel';
 import { request } from '@/utils/request';
 
 const Api = {

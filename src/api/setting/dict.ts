@@ -1,4 +1,4 @@
-import type { DictForm, DictQuery, DictVO, PageResult } from '@/api/model/settingModel';
+import type { DictForm, DictQuery, DictVO, PageResult } from '@/api/setting/settingModel';
 import { request } from '@/utils/request';
 
 const Api = {

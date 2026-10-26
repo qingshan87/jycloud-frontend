@@ -18,21 +18,7 @@
 
     <!-- 工具 + 列表：同一块 -->
     <t-card :bordered="false" class="setting-content-card">
-      <div class="setting-toolbar">
-        <t-button
-          v-permission="PERM.menu.create"
-          theme="primary"
-          :disabled="!selectedClientId"
-          @click="openCreate(0, 0)"
-        >
-          <template #icon><t-icon name="add" /></template>
-          新增顶级菜单
-        </t-button>
-        <t-button theme="default" :disabled="!selectedClientId" @click="expandAll">展开全部</t-button>
-        <t-button theme="default" :disabled="!selectedClientId" @click="collapseAll">收起全部</t-button>
-      </div>
-
-      <t-table
+      <managed-table
         v-if="selectedClientId"
         :data="visibleRows"
         :columns="columns"
@@ -40,7 +26,23 @@
         row-key="menuId"
         bordered
         hover
+        @refresh="handleRefresh"
       >
+        <template #toolbar-left>
+          <div class="setting-toolbar">
+            <t-button
+              v-permission="PERM.menu.create"
+              theme="primary"
+              :disabled="!selectedClientId"
+              @click="openCreate(0, 0)"
+            >
+              <template #icon><t-icon name="add" /></template>
+              新增顶级菜单
+            </t-button>
+            <t-button theme="default" :disabled="!selectedClientId" @click="expandAll">展开全部</t-button>
+            <t-button theme="default" :disabled="!selectedClientId" @click="collapseAll">收起全部</t-button>
+          </div>
+        </template>
         <template #menuTitle="{ row }">
           <div class="setting-menu-title-cell" :style="{ paddingLeft: `${row.level * 24}px` }">
             <span v-if="row.children && row.children.length > 0" class="setting-menu-toggle" @click="toggleExpand(row)">
@@ -73,7 +75,7 @@
             <t-link v-permission="PERM.menu.delete" theme="danger" @click="handleDelete(row)">删除</t-link>
           </t-space>
         </template>
-      </t-table>
+      </managed-table>
       <t-empty v-else description="请先选择应用" />
     </t-card>
 
@@ -117,42 +119,7 @@
             <t-input v-model="form.component" placeholder="如 setting/user/index" clearable />
           </t-form-item>
           <t-form-item label="图标" name="icon">
-            <t-popup v-model:visible="iconPickerVisible" trigger="click" placement="bottom-start" expand-animation>
-              <div class="icon-picker-trigger" :class="{ 'is-empty': !form.icon }">
-                <t-icon v-if="form.icon" :name="form.icon" class="icon-picker-preview" />
-                <span v-else class="icon-picker-placeholder">点击选择图标</span>
-                <t-icon name="chevron-down" class="icon-picker-arrow" />
-              </div>
-              <template #content>
-                <div class="icon-picker-panel">
-                  <t-input
-                    v-model="iconKeyword"
-                    placeholder="搜索图标，如 user / setting / menu"
-                    clearable
-                    size="small"
-                  >
-                    <template #prefix-icon><t-icon name="search" /></template>
-                  </t-input>
-                  <div class="icon-picker-grid">
-                    <div
-                      v-for="item in filteredIconList"
-                      :key="item"
-                      class="icon-picker-item"
-                      :class="{ 'is-active': form.icon === item }"
-                      :title="item"
-                      @click="selectIcon(item)"
-                    >
-                      <t-icon :name="item" size="18px" />
-                    </div>
-                  </div>
-                  <div v-if="filteredIconList.length === 0" class="icon-picker-empty">未找到匹配的图标</div>
-                  <div class="icon-picker-footer">
-                    <span>共 {{ filteredIconList.length }} 个图标</span>
-                    <t-link v-if="form.icon" theme="danger" @click="form.icon = ''">清除</t-link>
-                  </div>
-                </div>
-              </template>
-            </t-popup>
+            <icon-select v-model="form.icon" />
           </t-form-item>
         </template>
         <t-form-item label="权限标识" name="perms">
@@ -178,14 +145,15 @@
   </div>
 </template>
 <script setup lang="ts">
-import { manifest } from 'tdesign-icons-vue-next';
 import type { FormInstanceFunctions, FormRule, PrimaryTableCol, SelectOption } from 'tdesign-vue-next';
 import { DialogPlugin, MessagePlugin } from 'tdesign-vue-next';
 import { computed, onMounted, reactive, ref, watch } from 'vue';
 
-import type { MenuForm, SettingClient, SettingMenu } from '@/api/model/settingModel';
 import { pageClients } from '@/api/setting/client';
 import { createMenu, deleteMenu, treeMenus, updateMenu } from '@/api/setting/menu';
+import type { MenuForm, SettingClient, SettingMenu } from '@/api/setting/settingModel';
+import IconSelect from '@/components/icon-select/index.vue';
+import ManagedTable from '@/components/managed-table/index.vue';
 import { SETTING_CLIENT_ID } from '@/constants';
 import { PERM } from '@/constants/permission';
 
@@ -271,6 +239,13 @@ const loadTree = async (clientId: string, resetExpand = false) => {
   }
 };
 
+/** 刷新当前应用菜单树 */
+const handleRefresh = () => {
+  if (selectedClientId.value) {
+    loadTree(selectedClientId.value);
+  }
+};
+
 /** 只保留当前树中仍存在的展开主键 */
 const pruneExpandedKeys = (keys: Array<string | number>, list: SettingMenu[]): Array<string | number> => {
   const valid = new Set<string | number>();
@@ -318,7 +293,7 @@ const toggleExpand = (row: SettingMenu) => {
 };
 
 const columns: PrimaryTableCol[] = [
-  { colKey: 'menuTitle', title: '菜单标题', minWidth: 200 },
+  { colKey: 'menuTitle', title: '菜单标题', minWidth: 200, fixed: 'left' },
   { colKey: 'menuName', title: '菜单名称', width: 140 },
   { colKey: 'category', title: '类型', width: 90 },
   { colKey: 'path', title: '路由路径', width: 200 },
@@ -338,21 +313,6 @@ const formRef = ref<FormInstanceFunctions>();
 const form = reactive<MenuForm>({});
 const dialogTitle = ref('新增菜单');
 const isTopLevel = computed(() => form.parentId === 0);
-
-// ==================== 图标选择 ====================
-const iconPickerVisible = ref(false);
-const iconKeyword = ref('');
-const allIconNames = manifest.map((item) => item.stem);
-const filteredIconList = computed(() => {
-  const keyword = iconKeyword.value.trim().toLowerCase();
-  if (!keyword) return allIconNames;
-  return allIconNames.filter((name) => name.includes(keyword));
-});
-
-const selectIcon = (name: string) => {
-  form.icon = name;
-  iconPickerVisible.value = false;
-};
 
 const rules: Record<string, FormRule[]> = {
   menuTitle: [{ required: true, message: '请输入菜单标题', type: 'error' }],
@@ -519,86 +479,6 @@ onMounted(loadClients);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.icon-picker-trigger {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 280px;
-  height: 32px;
-  padding: 0 12px;
-  border: 1px solid var(--td-component-border);
-  border-radius: var(--td-radius-default);
-  background: var(--td-bg-color-container);
-  cursor: pointer;
-  transition: border-color 0.2s;
-
-  &:hover {
-    border-color: var(--td-brand-color);
-  }
-
-  .icon-picker-preview {
-    color: var(--td-text-color-primary);
-    font-size: 18px;
-  }
-
-  .icon-picker-placeholder {
-    color: var(--td-text-color-placeholder);
-  }
-
-  .icon-picker-arrow {
-    margin-left: auto;
-    color: var(--td-text-color-placeholder);
-  }
-}
-
-.icon-picker-panel {
-  width: 352px;
-  padding: 8px;
-}
-
-.icon-picker-grid {
-  display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  gap: 4px;
-  max-height: 264px;
-  margin-top: 8px;
-  overflow-y: auto;
-}
-
-.icon-picker-item {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 36px;
-  border-radius: var(--td-radius-default);
-  cursor: pointer;
-  color: var(--td-text-color-primary);
-
-  &:hover {
-    background: var(--td-bg-color-container-hover);
-  }
-
-  &.is-active {
-    color: var(--td-brand-color);
-    background: var(--td-brand-color-light);
-  }
-}
-
-.icon-picker-empty {
-  padding: 24px 0;
-  color: var(--td-text-color-placeholder);
-  text-align: center;
-}
-
-.icon-picker-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 8px;
-  color: var(--td-text-color-placeholder);
-  font-size: 12px;
 }
 
 .setting-toolbar {

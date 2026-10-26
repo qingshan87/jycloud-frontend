@@ -28,22 +28,7 @@
 
     <!-- 工具 + 列表：同一块 -->
     <t-card :bordered="false" class="setting-content-card">
-      <div class="setting-toolbar">
-        <t-button v-permission="PERM.user.create" theme="primary" @click="openCreate">
-          <template #icon><t-icon name="add" /></template>
-          新增用户
-        </t-button>
-        <t-button
-          v-permission="PERM.user.resetPassword"
-          theme="default"
-          :disabled="selectedRowKeys.length === 0"
-          @click="handleBatchResetPwd"
-        >
-          重置密码
-        </t-button>
-      </div>
-
-      <t-table
+      <managed-table
         :data="rows"
         :columns="columns"
         :pagination="pagination"
@@ -53,7 +38,24 @@
         :selectable="hasPerm(PERM.user.resetPassword)"
         @select-change="(val: Array<string | number>) => (selectedRowKeys = val)"
         @change="onTableChange"
+        @refresh="fetchList"
       >
+        <template #toolbar-left>
+          <div class="setting-toolbar">
+            <t-button v-permission="PERM.user.create" theme="primary" @click="openCreate">
+              <template #icon><t-icon name="add" /></template>
+              新增用户
+            </t-button>
+            <t-button
+              v-permission="PERM.user.resetPassword"
+              theme="default"
+              :disabled="selectedRowKeys.length === 0"
+              @click="handleBatchResetPwd"
+            >
+              重置密码
+            </t-button>
+          </div>
+        </template>
         <template #status="{ row }">
           <t-tag :theme="row.status === 1 ? 'success' : 'danger'" variant="light">{{
             row.status === 1 ? '启用' : '禁用'
@@ -77,7 +79,7 @@
             <t-link v-permission="PERM.user.delete" theme="danger" @click="handleDelete(row)">删除</t-link>
           </t-space>
         </template>
-      </t-table>
+      </managed-table>
     </t-card>
 
     <!-- 新增/编辑弹窗 -->
@@ -136,8 +138,9 @@ import type { FormInstanceFunctions, FormRule, PrimaryTableCol } from 'tdesign-v
 import { DialogPlugin, MessagePlugin } from 'tdesign-vue-next';
 import { onMounted, reactive, ref } from 'vue';
 
-import type { SettingUser, UserForm, UserQuery } from '@/api/model/settingModel';
+import type { SettingUser, UserForm, UserQuery } from '@/api/setting/settingModel';
 import { createUser, deleteUser, pageUsers, resetPassword, updateUser } from '@/api/setting/user';
+import ManagedTable from '@/components/managed-table/index.vue';
 import { PERM } from '@/constants/permission';
 import { hasPerm } from '@/utils/permission';
 
